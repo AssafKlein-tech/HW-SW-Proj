@@ -1,37 +1,37 @@
 ======================================================================
 TOP FUNCTIONS BY CUMULATIVE TIME
 ======================================================================
-         6939381 function calls in 10.344 seconds
+         6172672 function calls in 6.347 seconds
 
    Ordered by: cumulative time
-   List reduced from 45 to 25 due to restriction <25>
+   List reduced from 46 to 25 due to restriction <25>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-        1    2.629    2.629   10.344   10.344 /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
-   521458    1.429    0.000    4.865    0.000 {built-in method builtins.sum}
-   784243    0.700    0.000    1.877    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:204(getSuccessors)
-  2018493    1.788    0.000    1.788    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:256(<genexpr>)
-  2018493    1.647    0.000    1.648    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:258(<genexpr>)
-        1    0.060    0.060    1.323    1.323 /root/HW-SW-Proj/Mdp/mdp_optimized.py:28(topoSort)
-     4823    0.025    0.000    1.236    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:220(getSuccessorsList)
-     5983    0.016    0.000    0.971    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:134(_applyAction)
-     5983    0.167    0.000    0.926    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:111(_applyActionSide1)
-   312394    0.420    0.000    0.898    0.000 {built-in method builtins.max}
-     2324    0.022    0.000    0.705    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:172(_getSuccessorsB)
-     4648    0.044    0.000    0.676    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:162(_applyActionPair)
-    54430    0.138    0.000    0.491    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:91(applyHPChange)
-     1335    0.037    0.000    0.387    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:191(_getSuccessorsC)
-    54430    0.112    0.000    0.282    0.000 /usr/lib/python3.10/collections/__init__.py:430(_replace)
-     3659    0.121    0.000    0.267    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:64(getCritDist)
-   386946    0.242    0.000    0.242    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:253(<genexpr>)
-   386946    0.236    0.000    0.236    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:254(<genexpr>)
-    54430    0.042    0.000    0.170    0.000 /usr/lib/python3.10/collections/__init__.py:420(_make)
-     7318    0.028    0.000    0.140    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:55(getDamages)
-    54439    0.118    0.000    0.118    0.000 {built-in method __new__ of type object at 0x9aeb40}
-     7318    0.113    0.000    0.113    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:61(<listcomp>)
-     3659    0.051    0.000    0.082    0.000 {built-in method builtins.sorted}
-    58089    0.036    0.000    0.036    0.000 {built-in method builtins.min}
-    20094    0.031    0.000    0.031    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:216(<lambda>)
+        1    1.318    1.318    6.347    6.347 /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
+   521458    1.233    0.000    2.542    0.000 {built-in method builtins.sum}
+        1    0.085    0.085    1.768    1.768 /root/HW-SW-Proj/Mdp/mdp_optimized.py:34(topoSort)
+     4823    0.035    0.000    1.652    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:220(getSuccessorsList)
+     4821    0.046    0.000    1.616    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:204(getSuccessors)
+     5983    0.027    0.000    1.258    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:140(_applyAction)
+     5983    0.236    0.000    1.195    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:117(_applyActionSide1)
+     2324    0.040    0.000    0.935    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:172(_getSuccessorsB)
+     4648    0.084    0.000    0.888    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:162(_applyActionPair)
+    54430    0.190    0.000    0.662    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:97(applyHPChange)
+  2018493    0.660    0.000    0.660    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:297(<genexpr>)
+   312394    0.413    0.000    0.649    0.000 {built-in method builtins.max}
+  2018493    0.648    0.000    0.648    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:296(<genexpr>)
+     1335    0.055    0.000    0.519    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:191(_getSuccessorsC)
+    54430    0.172    0.000    0.379    0.000 /usr/lib/python3.10/collections/__init__.py:430(_replace)
+     3659    0.132    0.000    0.296    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:70(getCritDist)
+    54430    0.060    0.000    0.207    0.000 /usr/lib/python3.10/collections/__init__.py:420(_make)
+     7318    0.037    0.000    0.158    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:61(getDamages)
+    54439    0.136    0.000    0.136    0.000 {built-in method __new__ of type object at 0x9aeb40}
+     7318    0.122    0.000    0.122    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:67(<listcomp>)
+   386946    0.119    0.000    0.119    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:293(<genexpr>)
+   386946    0.117    0.000    0.117    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:294(<genexpr>)
+     3659    0.057    0.000    0.113    0.000 {built-in method builtins.sorted}
+     3659    0.094    0.000    0.094    0.000 /root/HW-SW-Proj/Mdp/mdp_optimized.py:268(<listcomp>)
+    58089    0.056    0.000    0.056    0.000 {built-in method builtins.min}
 
 
 
@@ -39,34 +39,33 @@ TOP FUNCTIONS BY CUMULATIVE TIME
 WHO CALLS WHOM (callers of each hot function)
 ======================================================================
    Ordered by: internal time
-   List reduced from 45 to 20 due to restriction <20>
+   List reduced from 46 to 20 due to restriction <20>
 
 Function                                                      was called by...
                                                                   ncalls  tottime  cumtime
 /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)           <- 
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:256(<genexpr>)          <- 2018493    1.788    1.788  {built-in method builtins.sum}
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:258(<genexpr>)          <- 2018493    1.647    1.648  {built-in method builtins.sum}
-{built-in method builtins.sum}                                <-  521458    1.429    4.865  /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:204(getSuccessors)      <-    4821    0.034    1.211  /root/HW-SW-Proj/Mdp/mdp_optimized.py:220(getSuccessorsList)
-                                                                  779422    0.666    0.666  /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
-{built-in method builtins.max}                                <-   54430    0.038    0.038  /root/HW-SW-Proj/Mdp/mdp_optimized.py:91(applyHPChange)
-                                                                  257964    0.382    0.860  /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:253(<genexpr>)          <-  386946    0.242    0.242  {built-in method builtins.max}
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:254(<genexpr>)          <-  386946    0.236    0.236  {built-in method builtins.max}
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:111(_applyActionSide1)  <-    5983    0.167    0.926  /root/HW-SW-Proj/Mdp/mdp_optimized.py:134(_applyAction)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:91(applyHPChange)       <-   54430    0.138    0.491  /root/HW-SW-Proj/Mdp/mdp_optimized.py:111(_applyActionSide1)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:64(getCritDist)         <-    3659    0.121    0.267  /root/HW-SW-Proj/Mdp/mdp_optimized.py:111(_applyActionSide1)
-{built-in method __new__ of type object at 0x9aeb40}          <-   54430    0.118    0.118  /usr/lib/python3.10/collections/__init__.py:420(_make)
+{built-in method builtins.sum}                                <-  521458    1.233    2.542  /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:297(<genexpr>)          <- 2018493    0.660    0.660  {built-in method builtins.sum}
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:296(<genexpr>)          <- 2018493    0.648    0.648  {built-in method builtins.sum}
+{built-in method builtins.max}                                <-   54430    0.040    0.040  /root/HW-SW-Proj/Mdp/mdp_optimized.py:97(applyHPChange)
+                                                                  257964    0.373    0.609  /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:117(_applyActionSide1)  <-    5983    0.236    1.195  /root/HW-SW-Proj/Mdp/mdp_optimized.py:140(_applyAction)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:97(applyHPChange)       <-   54430    0.190    0.662  /root/HW-SW-Proj/Mdp/mdp_optimized.py:117(_applyActionSide1)
+/usr/lib/python3.10/collections/__init__.py:430(_replace)     <-   54430    0.172    0.379  /root/HW-SW-Proj/Mdp/mdp_optimized.py:97(applyHPChange)
+{built-in method __new__ of type object at 0x9aeb40}          <-   54430    0.136    0.136  /usr/lib/python3.10/collections/__init__.py:420(_make)
                                                                        9    0.000    0.000  <string>:1(<lambda>)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:61(<listcomp>)          <-    7318    0.113    0.113  /root/HW-SW-Proj/Mdp/mdp_optimized.py:55(getDamages)
-/usr/lib/python3.10/collections/__init__.py:430(_replace)     <-   54430    0.112    0.282  /root/HW-SW-Proj/Mdp/mdp_optimized.py:91(applyHPChange)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:28(topoSort)            <-       1    0.060    1.323  /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
-{built-in method builtins.sorted}                             <-    3659    0.051    0.082  /root/HW-SW-Proj/Mdp/mdp_optimized.py:204(getSuccessors)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:162(_applyActionPair)   <-    4648    0.044    0.676  /root/HW-SW-Proj/Mdp/mdp_optimized.py:172(_getSuccessorsB)
-/usr/lib/python3.10/collections/__init__.py:420(_make)        <-   54430    0.042    0.170  /usr/lib/python3.10/collections/__init__.py:430(_replace)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:191(_getSuccessorsC)    <-    1335    0.037    0.387  /root/HW-SW-Proj/Mdp/mdp_optimized.py:204(getSuccessors)
-{built-in method builtins.min}                                <-    3659    0.003    0.003  /root/HW-SW-Proj/Mdp/mdp_optimized.py:64(getCritDist)
-                                                                   54430    0.033    0.033  /root/HW-SW-Proj/Mdp/mdp_optimized.py:91(applyHPChange)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:70(getCritDist)         <-    3659    0.132    0.296  /root/HW-SW-Proj/Mdp/mdp_optimized.py:117(_applyActionSide1)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:67(<listcomp>)          <-    7318    0.122    0.122  /root/HW-SW-Proj/Mdp/mdp_optimized.py:61(getDamages)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:293(<genexpr>)          <-  386946    0.119    0.119  {built-in method builtins.max}
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:294(<genexpr>)          <-  386946    0.117    0.117  {built-in method builtins.max}
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:268(<listcomp>)         <-    3659    0.094    0.094  /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:34(topoSort)            <-       1    0.085    1.768  /root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:162(_applyActionPair)   <-    4648    0.084    0.888  /root/HW-SW-Proj/Mdp/mdp_optimized.py:172(_getSuccessorsB)
+/usr/lib/python3.10/collections/__init__.py:420(_make)        <-   54430    0.060    0.207  /usr/lib/python3.10/collections/__init__.py:430(_replace)
+{built-in method builtins.sorted}                             <-    3659    0.057    0.113  /root/HW-SW-Proj/Mdp/mdp_optimized.py:204(getSuccessors)
+{built-in method builtins.min}                                <-    3659    0.003    0.003  /root/HW-SW-Proj/Mdp/mdp_optimized.py:70(getCritDist)
+                                                                   54430    0.053    0.053  /root/HW-SW-Proj/Mdp/mdp_optimized.py:97(applyHPChange)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:216(<lambda>)           <-   20094    0.056    0.056  {built-in method builtins.sorted}
 
 
 
@@ -74,57 +73,53 @@ Function                                                      was called by...
 WHAT EACH HOT FUNCTION CALLS (callees)
 ======================================================================
    Ordered by: internal time
-   List reduced from 45 to 20 due to restriction <20>
+   List reduced from 46 to 20 due to restriction <20>
 
 Function                                                      called...
                                                                   ncalls  tottime  cumtime
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)           ->       1    0.060    1.323  /root/HW-SW-Proj/Mdp/mdp_optimized.py:28(topoSort)
-                                                                       1    0.000    0.000  /root/HW-SW-Proj/Mdp/mdp_optimized.py:96(applyBadgeBoosts)
-                                                                       1    0.000    0.000  /root/HW-SW-Proj/Mdp/mdp_optimized.py:148(<lambda>)
-                                                                  779422    0.666    0.666  /root/HW-SW-Proj/Mdp/mdp_optimized.py:204(getSuccessors)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:228(evaluate)           ->       1    0.085    1.768  /root/HW-SW-Proj/Mdp/mdp_optimized.py:34(topoSort)
+                                                                       1    0.000    0.000  /root/HW-SW-Proj/Mdp/mdp_optimized.py:102(applyBadgeBoosts)
+                                                                       1    0.008    0.008  /root/HW-SW-Proj/Mdp/mdp_optimized.py:251(<dictcomp>)
+                                                                    1162    0.006    0.006  /root/HW-SW-Proj/Mdp/mdp_optimized.py:265(<listcomp>)
+                                                                    3659    0.094    0.094  /root/HW-SW-Proj/Mdp/mdp_optimized.py:268(<listcomp>)
                                                                        2    0.000    0.000  <string>:1(<lambda>)
-                                                                  257964    0.382    0.860  {built-in method builtins.max}
-                                                                  521458    1.429    4.865  {built-in method builtins.sum}
-                                                                    1322    0.001    0.001  {method 'add' of 'set' objects}
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:256(<genexpr>)          -> 
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:258(<genexpr>)          ->     432    0.000    0.000  /root/HW-SW-Proj/Mdp/mdp_optimized.py:148(<lambda>)
-{built-in method builtins.sum}                                -> 2018493    1.788    1.788  /root/HW-SW-Proj/Mdp/mdp_optimized.py:256(<genexpr>)
-                                                                 2018493    1.647    1.648  /root/HW-SW-Proj/Mdp/mdp_optimized.py:258(<genexpr>)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:204(getSuccessors)      ->    3486    0.002    0.002  /root/HW-SW-Proj/Mdp/mdp_optimized.py:157(_getSuccessorsA)
-                                                                    2324    0.022    0.705  /root/HW-SW-Proj/Mdp/mdp_optimized.py:172(_getSuccessorsB)
-                                                                    1335    0.037    0.387  /root/HW-SW-Proj/Mdp/mdp_optimized.py:191(_getSuccessorsC)
-                                                                    3659    0.051    0.082  {built-in method builtins.sorted}
+                                                                       1    0.000    0.000  {built-in method builtins.len}
+                                                                  257964    0.373    0.609  {built-in method builtins.max}
+                                                                  521458    1.233    2.542  {built-in method builtins.sum}
+                                                                    9646    0.001    0.001  {method 'append' of 'list' objects}
+{built-in method builtins.sum}                                -> 2018493    0.648    0.648  /root/HW-SW-Proj/Mdp/mdp_optimized.py:296(<genexpr>)
+                                                                 2018493    0.660    0.660  /root/HW-SW-Proj/Mdp/mdp_optimized.py:297(<genexpr>)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:297(<genexpr>)          -> 
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:296(<genexpr>)          -> 
+{built-in method builtins.max}                                ->  386946    0.119    0.119  /root/HW-SW-Proj/Mdp/mdp_optimized.py:293(<genexpr>)
+                                                                  386946    0.117    0.117  /root/HW-SW-Proj/Mdp/mdp_optimized.py:294(<genexpr>)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:117(_applyActionSide1)  ->    3659    0.132    0.296  /root/HW-SW-Proj/Mdp/mdp_optimized.py:70(getCritDist)
+                                                                   54430    0.190    0.662  /root/HW-SW-Proj/Mdp/mdp_optimized.py:97(applyHPChange)
                                                                     3659    0.001    0.001  {method 'items' of 'dict' objects}
-{built-in method builtins.max}                                ->  386946    0.242    0.242  /root/HW-SW-Proj/Mdp/mdp_optimized.py:253(<genexpr>)
-                                                                  386946    0.236    0.236  /root/HW-SW-Proj/Mdp/mdp_optimized.py:254(<genexpr>)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:253(<genexpr>)          -> 
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:254(<genexpr>)          -> 
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:111(_applyActionSide1)  ->    3659    0.121    0.267  /root/HW-SW-Proj/Mdp/mdp_optimized.py:64(getCritDist)
-                                                                   54430    0.138    0.491  /root/HW-SW-Proj/Mdp/mdp_optimized.py:91(applyHPChange)
-                                                                    3659    0.001    0.001  {method 'items' of 'dict' objects}
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:91(applyHPChange)       ->   54430    0.112    0.282  /usr/lib/python3.10/collections/__init__.py:430(_replace)
-                                                                   54430    0.038    0.038  {built-in method builtins.max}
-                                                                   54430    0.033    0.033  {built-in method builtins.min}
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:64(getCritDist)         ->    7318    0.028    0.140  /root/HW-SW-Proj/Mdp/mdp_optimized.py:55(getDamages)
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:97(applyHPChange)       ->   54430    0.172    0.379  /usr/lib/python3.10/collections/__init__.py:430(_replace)
+                                                                   54430    0.040    0.040  {built-in method builtins.max}
+                                                                   54430    0.053    0.053  {built-in method builtins.min}
+/usr/lib/python3.10/collections/__init__.py:430(_replace)     ->   54430    0.060    0.207  /usr/lib/python3.10/collections/__init__.py:420(_make)
+{built-in method __new__ of type object at 0x9aeb40}          -> 
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:70(getCritDist)         ->    7318    0.037    0.158  /root/HW-SW-Proj/Mdp/mdp_optimized.py:61(getDamages)
                                                                     7318    0.002    0.002  {built-in method builtins.len}
                                                                     3659    0.003    0.003  {built-in method builtins.min}
-{built-in method __new__ of type object at 0x9aeb40}          -> 
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:61(<listcomp>)          -> 
-/usr/lib/python3.10/collections/__init__.py:430(_replace)     ->   54430    0.042    0.170  /usr/lib/python3.10/collections/__init__.py:420(_make)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:28(topoSort)            ->       1    0.000    0.000  /root/HW-SW-Proj/Mdp/mdp_optimized.py:39(<listcomp>)
-                                                                    4823    0.025    1.236  /root/HW-SW-Proj/Mdp/mdp_optimized.py:220(getSuccessorsList)
-                                                                    4823    0.003    0.003  {method 'add' of 'set' objects}
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:67(<listcomp>)          -> 
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:293(<genexpr>)          -> 
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:294(<genexpr>)          -> 
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:268(<listcomp>)         -> 
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:34(topoSort)            ->       1    0.000    0.000  /root/HW-SW-Proj/Mdp/mdp_optimized.py:45(<listcomp>)
+                                                                    4823    0.035    1.652  /root/HW-SW-Proj/Mdp/mdp_optimized.py:220(getSuccessorsList)
+                                                                    4823    0.006    0.006  {method 'add' of 'set' objects}
                                                                     9646    0.002    0.002  {method 'append' of 'list' objects}
                                                                     4823    0.010    0.018  {method 'extend' of 'list' objects}
-                                                                   27242    0.004    0.004  {method 'pop' of 'list' objects}
-{built-in method builtins.sorted}                             ->   20094    0.031    0.031  /root/HW-SW-Proj/Mdp/mdp_optimized.py:216(<lambda>)
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:162(_applyActionPair)   ->    4648    0.012    0.630  /root/HW-SW-Proj/Mdp/mdp_optimized.py:134(_applyAction)
+                                                                   27242    0.005    0.005  {method 'pop' of 'list' objects}
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:162(_applyActionPair)   ->    4648    0.023    0.803  /root/HW-SW-Proj/Mdp/mdp_optimized.py:140(_applyAction)
                                                                     4648    0.001    0.001  {method 'items' of 'dict' objects}
-/usr/lib/python3.10/collections/__init__.py:420(_make)        ->   54430    0.118    0.118  {built-in method __new__ of type object at 0x9aeb40}
-                                                                   54430    0.010    0.010  {built-in method builtins.len}
-/root/HW-SW-Proj/Mdp/mdp_optimized.py:191(_getSuccessorsC)    ->    1335    0.004    0.341  /root/HW-SW-Proj/Mdp/mdp_optimized.py:134(_applyAction)
-                                                                    1335    0.009    0.009  /root/HW-SW-Proj/Mdp/mdp_optimized.py:202(<dictcomp>)
-                                                                    2670    0.001    0.001  {method 'items' of 'dict' objects}
+/usr/lib/python3.10/collections/__init__.py:420(_make)        ->   54430    0.136    0.136  {built-in method __new__ of type object at 0x9aeb40}
+                                                                   54430    0.011    0.011  {built-in method builtins.len}
+{built-in method builtins.sorted}                             ->   20094    0.056    0.056  /root/HW-SW-Proj/Mdp/mdp_optimized.py:216(<lambda>)
 {built-in method builtins.min}                                -> 
+/root/HW-SW-Proj/Mdp/mdp_optimized.py:216(<lambda>)           -> 
 
 
