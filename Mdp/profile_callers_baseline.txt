@@ -1,0 +1,160 @@
+======================================================================
+TOP FUNCTIONS BY CUMULATIVE TIME
+======================================================================
+         11468952 function calls (11468950 primitive calls) in 16.629 seconds
+
+   Ordered by: cumulative time
+   List reduced from 66 to 25 due to restriction <25>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    2.851    2.851   16.629   16.629 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:208(evaluate)
+   784243    0.787    0.000    7.344    0.000 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:184(getSuccessors)
+        1    0.068    0.068    6.735    6.735 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:8(topoSort)
+     4823    0.030    0.000    6.630    0.001 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:200(getSuccessorsList)
+     5983    0.037    0.000    5.684    0.001 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:114(_applyAction)
+     5983    0.272    0.000    5.619    0.001 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:91(_applyActionSide1)
+   521458    1.550    0.000    5.352    0.000 {built-in method builtins.sum}
+   378890    0.475    0.000    4.192    0.000 /usr/lib/python3.10/fractions.py:356(forward)
+     2324    0.036    0.000    4.082    0.002 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:152(_getSuccessorsB)
+     3659    0.479    0.000    4.071    0.001 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:44(getCritDist)
+     4648    0.071    0.000    3.931    0.001 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:142(_applyActionPair)
+   360471    1.865    0.000    3.407    0.000 /usr/lib/python3.10/fractions.py:451(_add)
+     1335    0.075    0.000    2.434    0.002 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:171(_getSuccessorsC)
+  2018493    1.985    0.000    1.985    0.000 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:236(<genexpr>)
+  2018493    1.817    0.000    1.817    0.000 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:238(<genexpr>)
+   489678    1.137    0.000    1.323    0.000 /usr/lib/python3.10/fractions.py:62(__new__)
+   312394    0.477    0.000    0.998    0.000 {built-in method builtins.max}
+    54430    0.161    0.000    0.601    0.000 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:71(applyHPChange)
+    54430    0.143    0.000    0.357    0.000 /usr/lib/python3.10/collections/__init__.py:430(_replace)
+   544117    0.333    0.000    0.333    0.000 {built-in method __new__ of type object at 0x9aeb40}
+   386946    0.273    0.000    0.273    0.000 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:233(<genexpr>)
+   386946    0.248    0.000    0.248    0.000 /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:234(<genexpr>)
+   676884    0.242    0.000    0.242    0.000 {built-in method math.gcd}
+    54430    0.052    0.000    0.214    0.000 /usr/lib/python3.10/collections/__init__.py:420(_make)
+   777874    0.193    0.000    0.193    0.000 /usr/lib/python3.10/fractions.py:256(numerator)
+
+
+
+======================================================================
+WHO CALLS WHOM (callers of each hot function)
+======================================================================
+   Ordered by: internal time
+   List reduced from 66 to 20 due to restriction <20>
+
+Function                                                                                                                   was called by...
+                                                                                                                               ncalls  tottime  cumtime
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:208(evaluate)          <- 
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:236(<genexpr>)         <- 2018493    1.985    1.985  {built-in method builtins.sum}
+/usr/lib/python3.10/fractions.py:451(_add)                                                                                 <-  360471    1.865    3.407  /usr/lib/python3.10/fractions.py:356(forward)
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:238(<genexpr>)         <- 2018493    1.817    1.817  {built-in method builtins.sum}
+{built-in method builtins.sum}                                                                                             <-  521458    1.550    5.352  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:208(evaluate)
+/usr/lib/python3.10/fractions.py:62(__new__)                                                                               <-  360471    0.850    0.984  /usr/lib/python3.10/fractions.py:451(_add)
+                                                                                                                                 3659    0.009    0.011  /usr/lib/python3.10/fractions.py:467(_sub)
+                                                                                                                                11101    0.025    0.029  /usr/lib/python3.10/fractions.py:483(_mul)
+                                                                                                                                 7318    0.016    0.019  /usr/lib/python3.10/fractions.py:499(_div)
+                                                                                                                                55765    0.106    0.125  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:44(getCritDist)
+                                                                                                                                26622    0.065    0.077  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:91(_applyActionSide1)
+                                                                                                                                 8232    0.017    0.025  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:142(_applyActionPair)
+                                                                                                                                 4648    0.018    0.021  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:152(_getSuccessorsB)
+                                                                                                                                11862    0.029    0.033  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:171(_getSuccessorsC)
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:184(getSuccessors)     <-    4821    0.042    6.600  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:200(getSuccessorsList)
+                                                                                                                               779422    0.744    0.744  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:208(evaluate)
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:44(getCritDist)        <-    3659    0.479    4.071  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:91(_applyActionSide1)
+{built-in method builtins.max}                                                                                             <-   54430    0.051    0.051  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:71(applyHPChange)
+                                                                                                                               257964    0.425    0.946  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:208(evaluate)
+/usr/lib/python3.10/fractions.py:356(forward)                                                                              <-  292720    0.369    3.233  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:44(getCritDist)
+                                                                                                                                52106    0.065    0.598  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:91(_applyActionSide1)
+                                                                                                                                22202    0.026    0.238  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:142(_applyActionPair)
+                                                                                                                                11862    0.014    0.123  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:171(_getSuccessorsC)
+{built-in method __new__ of type object at 0x9aeb40}                                                                       <-   54430    0.150    0.150  /usr/lib/python3.10/collections/__init__.py:420(_make)
+                                                                                                                               489678    0.183    0.183  /usr/lib/python3.10/fractions.py:62(__new__)
+                                                                                                                                    9    0.000    0.000  <string>:1(<lambda>)
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:233(<genexpr>)         <-  386946    0.273    0.273  {built-in method builtins.max}
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:91(_applyActionSide1)  <-    5983    0.272    5.619  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:114(_applyAction)
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:234(<genexpr>)         <-  386946    0.248    0.248  {built-in method builtins.max}
+{built-in method math.gcd}                                                                                                 <-    8307    0.003    0.003  /usr/lib/python3.10/fractions.py:62(__new__)
+                                                                                                                               628080    0.226    0.226  /usr/lib/python3.10/fractions.py:451(_add)
+                                                                                                                                 3659    0.001    0.001  /usr/lib/python3.10/fractions.py:467(_sub)
+                                                                                                                                22202    0.008    0.008  /usr/lib/python3.10/fractions.py:483(_mul)
+                                                                                                                                14636    0.004    0.004  /usr/lib/python3.10/fractions.py:499(_div)
+/usr/lib/python3.10/fractions.py:256(numerator)                                                                            <-  720942    0.173    0.173  /usr/lib/python3.10/fractions.py:451(_add)
+                                                                                                                                 3659    0.001    0.001  /usr/lib/python3.10/fractions.py:467(_sub)
+                                                                                                                                22202    0.005    0.005  /usr/lib/python3.10/fractions.py:483(_mul)
+                                                                                                                                 7318    0.006    0.006  /usr/lib/python3.10/fractions.py:499(_div)
+                                                                                                                                 3659    0.001    0.001  /usr/lib/python3.10/fractions.py:691(_richcmp)
+                                                                                                                                20094    0.006    0.006  /usr/lib/python3.10/numbers.py:283(__float__)
+/usr/lib/python3.10/fractions.py:260(denominator)                                                                          <-  720942    0.158    0.158  /usr/lib/python3.10/fractions.py:451(_add)
+                                                                                                                                 3659    0.001    0.001  /usr/lib/python3.10/fractions.py:467(_sub)
+                                                                                                                                22202    0.008    0.008  /usr/lib/python3.10/fractions.py:483(_mul)
+                                                                                                                                 7318    0.002    0.002  /usr/lib/python3.10/fractions.py:499(_div)
+                                                                                                                                 3659    0.001    0.001  /usr/lib/python3.10/fractions.py:691(_richcmp)
+                                                                                                                                20094    0.005    0.005  /usr/lib/python3.10/numbers.py:283(__float__)
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:71(applyHPChange)      <-   54430    0.161    0.601  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:91(_applyActionSide1)
+{built-in method builtins.isinstance}                                                                                      <-  378890    0.127    0.127  /usr/lib/python3.10/fractions.py:356(forward)
+                                                                                                                                 3659    0.005    0.009  /usr/lib/python3.10/fractions.py:368(reverse)
+                                                                                                                                23753    0.025    0.055  /usr/lib/python3.10/fractions.py:691(_richcmp)
+/usr/lib/python3.10/collections/__init__.py:430(_replace)                                                                  <-   54430    0.143    0.357  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:71(applyHPChange)
+
+
+
+======================================================================
+WHAT EACH HOT FUNCTION CALLS (callees)
+======================================================================
+   Ordered by: internal time
+   List reduced from 66 to 20 due to restriction <20>
+
+Function                                                                                                                   called...
+                                                                                                                               ncalls  tottime  cumtime
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:208(evaluate)          ->       1    0.068    6.735  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:8(topoSort)
+                                                                                                                                    1    0.000    0.000  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:76(applyBadgeBoosts)
+                                                                                                                                    1    0.000    0.000  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:128(<lambda>)
+                                                                                                                               779422    0.744    0.744  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:184(getSuccessors)
+                                                                                                                                    2    0.000    0.000  <string>:1(<lambda>)
+                                                                                                                               257964    0.425    0.946  {built-in method builtins.max}
+                                                                                                                               521458    1.550    5.352  {built-in method builtins.sum}
+                                                                                                                                 1322    0.001    0.001  {method 'add' of 'set' objects}
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:236(<genexpr>)         -> 
+/usr/lib/python3.10/fractions.py:451(_add)                                                                                 ->  360471    0.850    0.984  /usr/lib/python3.10/fractions.py:62(__new__)
+                                                                                                                               720942    0.173    0.173  /usr/lib/python3.10/fractions.py:256(numerator)
+                                                                                                                               720942    0.158    0.158  /usr/lib/python3.10/fractions.py:260(denominator)
+                                                                                                                               628080    0.226    0.226  {built-in method math.gcd}
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:238(<genexpr>)         ->     432    0.000    0.000  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:128(<lambda>)
+{built-in method builtins.sum}                                                                                             -> 2018493    1.985    1.985  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:236(<genexpr>)
+                                                                                                                              2018493    1.817    1.817  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:238(<genexpr>)
+/usr/lib/python3.10/fractions.py:62(__new__)                                                                               ->  489678    0.183    0.183  {built-in method __new__ of type object at 0x9aeb40}
+                                                                                                                                 8307    0.003    0.003  {built-in method math.gcd}
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:184(getSuccessors)     ->    3486    0.002    0.002  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:137(_getSuccessorsA)
+                                                                                                                                 2324    0.036    4.082  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:152(_getSuccessorsB)
+                                                                                                                                 1335    0.075    2.434  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:171(_getSuccessorsC)
+                                                                                                                                 3659    0.028    0.039  {built-in method builtins.sorted}
+                                                                                                                                 3659    0.001    0.001  {method 'items' of 'dict' objects}
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:44(getCritDist)        ->   55765    0.106    0.125  /usr/lib/python3.10/fractions.py:62(__new__)
+                                                                                                                               292720    0.369    3.233  /usr/lib/python3.10/fractions.py:356(forward)
+                                                                                                                                 3659    0.005    0.049  /usr/lib/python3.10/fractions.py:368(reverse)
+                                                                                                                                 7318    0.032    0.146  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:35(getDamages)
+                                                                                                                                 7318    0.002    0.002  {built-in method builtins.len}
+                                                                                                                                 3659    0.008    0.036  {built-in method builtins.min}
+{built-in method builtins.max}                                                                                             ->  386946    0.273    0.273  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:233(<genexpr>)
+                                                                                                                               386946    0.248    0.248  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:234(<genexpr>)
+/usr/lib/python3.10/fractions.py:356(forward)                                                                              ->  360471    1.865    3.407  /usr/lib/python3.10/fractions.py:451(_add)
+                                                                                                                                11101    0.059    0.109  /usr/lib/python3.10/fractions.py:483(_mul)
+                                                                                                                                 7318    0.044    0.075  /usr/lib/python3.10/fractions.py:499(_div)
+                                                                                                                               378890    0.127    0.127  {built-in method builtins.isinstance}
+{built-in method __new__ of type object at 0x9aeb40}                                                                       -> 
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:233(<genexpr>)         -> 
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:91(_applyActionSide1)  ->   26622    0.065    0.077  /usr/lib/python3.10/fractions.py:62(__new__)
+                                                                                                                                52106    0.065    0.598  /usr/lib/python3.10/fractions.py:356(forward)
+                                                                                                                                 3659    0.479    4.071  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:44(getCritDist)
+                                                                                                                                54430    0.161    0.601  /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:71(applyHPChange)
+                                                                                                                                 3659    0.001    0.001  {method 'items' of 'dict' objects}
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:234(<genexpr>)         -> 
+{built-in method math.gcd}                                                                                                 -> 
+/usr/lib/python3.10/fractions.py:256(numerator)                                                                            -> 
+/usr/lib/python3.10/fractions.py:260(denominator)                                                                          -> 
+/usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py:71(applyHPChange)      ->   54430    0.143    0.357  /usr/lib/python3.10/collections/__init__.py:430(_replace)
+                                                                                                                                54430    0.051    0.051  {built-in method builtins.max}
+                                                                                                                                54430    0.032    0.032  {built-in method builtins.min}
+{built-in method builtins.isinstance}                                                                                      ->   27412    0.014    0.035  /usr/lib/python3.10/abc.py:117(__instancecheck__)
+/usr/lib/python3.10/collections/__init__.py:430(_replace)                                                                  ->   54430    0.052    0.214  /usr/lib/python3.10/collections/__init__.py:420(_make)
+
+

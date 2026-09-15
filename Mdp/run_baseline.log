@@ -1,0 +1,144 @@
+==> Environment setup
+==> [baseline] pyperformance timing run -> mdp_baseline.json
+Python benchmark suite 1.14.0
+
+Creating the virtual environment /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a
+# /usr/bin/python3-dbg -m venv --without-pip /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m ensurepip -v -U
+/root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python: No module named ensurepip
+Command failed with exit code 1
+Download https://bootstrap.pypa.io/get-pip.py into /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/get-pip.py
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -u /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/get-pip.py
+Collecting pip
+  Using cached pip-26.2.1-py3-none-any.whl.metadata (4.6 kB)
+Collecting setuptools
+  Using cached setuptools-84.0.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting wheel
+  Using cached wheel-0.48.0-py3-none-any.whl.metadata (2.3 kB)
+Collecting packaging>=24.0 (from wheel)
+  Using cached packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Using cached pip-26.2.1-py3-none-any.whl (1.8 MB)
+Using cached setuptools-84.0.0-py3-none-any.whl (818 kB)
+Using cached wheel-0.48.0-py3-none-any.whl (33 kB)
+Using cached packaging-26.3-py3-none-any.whl (129 kB)
+Installing collected packages: setuptools, pip, packaging, wheel
+
+Successfully installed packaging-26.3 pip-26.2.1 setuptools-84.0.0 wheel-0.48.0
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip install -U 'setuptools>=18.5' wheel
+Requirement already satisfied: setuptools>=18.5 in ./venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/lib/python3.10/site-packages (84.0.0)
+Requirement already satisfied: wheel in ./venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/lib/python3.10/site-packages (0.48.0)
+Requirement already satisfied: packaging>=24.0 in ./venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/lib/python3.10/site-packages (from wheel) (26.3)
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip --version
+pip 26.2.1 from /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/lib/python3.10/site-packages/pip (python 3.10)
+
+==================================================
+( 1/1) creating venv for benchmark (mdp)
+
+(trying common venv first)
+Installing requirements into the virtual environment /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip install pyperf==2.10.0
+Collecting pyperf==2.10.0
+  Using cached pyperf-2.10.0-py3-none-any.whl.metadata (6.2 kB)
+Collecting psutil>=5.9.0 (from pyperf==2.10.0)
+  Using cached psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+Using cached pyperf-2.10.0-py3-none-any.whl (144 kB)
+Using cached psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+Installing collected packages: psutil, pyperf
+
+Successfully installed psutil-7.2.2 pyperf-2.10.0
+Installing requirements into the virtual environment /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip install psutil
+Requirement already satisfied: psutil in ./venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/lib/python3.10/site-packages (7.2.2)
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip freeze
+packaging==26.3
+psutil==7.2.2
+pyperf==2.10.0
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip freeze
+packaging==26.3
+psutil==7.2.2
+pyperf==2.10.0
+
+[1/1] mdp...
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -u /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py --output /tmp/tmpalpyknk8 --inherit-environ PYPERFORMANCE_RUNID
+.....................
+WARNING: the benchmark result may be unstable
+* Not enough samples to get a stable result (95% certainly of less than 1% variation)
+
+Try to rerun the benchmark with more runs, values and/or loops.
+Run 'python -m pyperf system tune' command to reduce the system jitter.
+Use pyperf stats, pyperf dump and pyperf hist to analyze results.
+Use --quiet option to hide these warnings.
+
+mdp: Mean +- std dev: 10.8 sec +- 0.8 sec
+
+Performance version: 1.14.0
+Python version: 3.10.12 (64-bit)
+Report on Linux-5.15.0-1104-kvm-x86_64-with-glibc2.35
+Number of logical CPUs: 1
+Start date: 2026-09-12 07:50:25.215194
+End date: 2026-09-12 08:05:51.349001
+
+### mdp ###
+Mean +- std dev: 10.8 sec +- 0.8 sec
+
+==> [baseline] perf record (cpu-clock, 999 Hz, frame-pointer call graph) -> perf_baseline.data
+Couldn't record kernel reference relocation symbol
+Symbol resolution may be skewed if relocation was used (e.g. kexec).
+Check /proc/kallsyms permission or run as root.
+perf_event__synthesize_bpf_events: failed to synthesize bpf images: No such file or directory
+Couldn't synthesize bpf events.
+Python benchmark suite 1.14.0
+
+
+==================================================
+( 1/1) creating venv for benchmark (mdp)
+
+(trying common venv first)
+Installing requirements into the virtual environment /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip install pyperf==2.10.0
+Requirement already satisfied: pyperf==2.10.0 in ./venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/lib/python3.10/site-packages (2.10.0)
+Requirement already satisfied: psutil>=5.9.0 in ./venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/lib/python3.10/site-packages (from pyperf==2.10.0) (7.2.2)
+Installing requirements into the virtual environment /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip install psutil
+Requirement already satisfied: psutil in ./venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/lib/python3.10/site-packages (7.2.2)
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip freeze
+packaging==26.3
+psutil==7.2.2
+pyperf==2.10.0
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -m pip freeze
+packaging==26.3
+psutil==7.2.2
+pyperf==2.10.0
+
+[1/1] mdp...
+# /root/HW-SW-Proj/Mdp/venv/cpython3.10-73966b47cd1a-compat-31b33d68c68a/bin/python -u /usr/local/lib/python3.10/dist-packages/pyperformance/data-files/benchmarks/bm_mdp/run_benchmark.py --output /tmp/tmp79a09fu1 --inherit-environ PYPERFORMANCE_RUNID
+.....................
+mdp: Mean +- std dev: 10.5 sec +- 0.1 sec
+
+Performance version: 1.14.0
+Python version: 3.10.12 (64-bit)
+Report on Linux-5.15.0-1104-kvm-x86_64-with-glibc2.35
+Number of logical CPUs: 1
+Start date: 2026-09-12 08:05:52.717004
+End date: 2026-09-12 08:20:46.299371
+
+### mdp ###
+Mean +- std dev: 10.5 sec +- 0.1 sec
+
+[ perf record: Woken up 237 times to write data ]
+[ perf record: Captured and wrote 59.161 MB perf_baseline.data (853985 samples) ]
+==> [baseline] perf report --stdio -> perf_baseline_report.txt
+Warning:
+Kernel address maps (/proc/{kallsyms,modules}) were restricted.
+
+Check /proc/sys/kernel/kptr_restrict before running 'perf record'.
+
+As no suitable kallsyms nor vmlinux was found, kernel samples
+can't be resolved.
+
+Samples in kernel modules can't be resolved as well.
+
+==> [baseline] flame graph -> flamegraph_baseline.svg
+==> [baseline] done. # Samples: 853K of event 'cpu-clock'
+==> Skipping optimized (--skip-optimized)
+==> All done. Outputs are in /root/HW-SW-Proj/Mdp
