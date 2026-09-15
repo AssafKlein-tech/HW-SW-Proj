@@ -9,3 +9,12 @@ sites/site*/public/theme/
 textpattern/
 HISTORY.txt
 README.txt
+Project.pdf
+
+# pyperformance/perf tooling artifacts (regeneratable; raw perf.data can be tens of MB)
+venv/
+**/venv/
+__pycache__/
+*.pyc
+*.data
+*.data.old
