@@ -15,9 +15,15 @@ remaining ratios (64/130, 66/130) round the same way float() would have rounded
 them anyway. Net error is ~1e-15, far under the benchmark's 1e-6 correctness
 tolerance.
 
-Everything else -- the value-iteration loop in evaluate(), the per-instance
-getSuccessors() cache, and getDamages/getCritDist's control flow -- is unchanged
-from the original.
+Second optimization, in Battle.evaluate(): the value-iteration loop originally
+keyed dmin/dmax/frozen/successors by the raw statep tuple (a nested-namedtuple
+hash on every access), even though only ~4823 distinct states are ever reachable.
+Since topoSort() already visits every reachable state exactly once, its output
+order is used to assign each state an integer id, and dmin/dmax/frozen/the
+successor lists are rebuilt as plain lists indexed by that id -- turning every
+hash+lookup in the hot loop into direct array indexing. getSuccessors() itself
+(and its statep-keyed self.successors cache used during the one-time topoSort
+discovery pass) is unchanged.
 """
 import collections
 from collections import defaultdict
@@ -144,15 +150,9 @@ class Battle(object):
 
     def __init__(self):
         self.successors = {}
-        self.min = defaultdict(float)
-        self.max = defaultdict(lambda: 1.0)
-        self.frozen = set()
 
         self.win = 4, True
         self.loss = 4, False
-        self.max[self.loss] = 0.0
-        self.min[self.win] = 1.0
-        self.frozen.update([self.win, self.loss])
 
     def _getSuccessorsA(self, statep):
         st, state = statep
@@ -237,31 +237,69 @@ class Battle(object):
         initial_state = charhalf, starhalf, 0
         initial_statep = 0, initial_state
 
-        dmin, dmax, frozen = self.min, self.max, self.frozen
         stateps = topoSort([initial_statep], self.getSuccessorsList)
 
+        # Only ~4823 states are ever reachable (confirmed by profiling), and the
+        # topoSort call above already discovered and numbered them all in one DFS
+        # pass (self.successors got populated as a side effect). Assign each state
+        # an integer id equal to its position in that order, then replace every
+        # statep-keyed dict/set used in the hot loop below with a plain list
+        # indexed by id -- trading tuple hashing (PyObject_Hash/tuplehash were the
+        # top two entries in perf_baseline_flat_report.txt, ~18% of samples
+        # combined) for direct array indexing. getSuccessors/getSuccessorsList/
+        # topoSort themselves are untouched; this is a one-time O(n) translation.
+        id_of = {sp: i for i, sp in enumerate(stateps)}
+        n = len(stateps)
+
+        succ_ids = []
+        is_choice = []
+        for sp in stateps:
+            if sp[0] == 4:
+                # terminal win/loss state: always frozen, never read below
+                succ_ids.append(())
+                is_choice.append(False)
+                continue
+            raw = self.successors[sp]
+            if sp[0] == 0:
+                is_choice.append(True)
+                succ_ids.append([id_of[sp2] for sp2 in raw])
+            else:
+                is_choice.append(False)
+                succ_ids.append([(id_of[sp2], p) for sp2, p in raw])
+
+        dmin = [0.0] * n
+        dmax = [1.0] * n
+        frozen = [False] * n
+
+        win_id = id_of[self.win]
+        loss_id = id_of[self.loss]
+        dmax[loss_id] = 0.0
+        dmin[win_id] = 1.0
+        frozen[win_id] = True
+        frozen[loss_id] = True
+
+        initial_id = id_of[initial_statep]
+
         itercount = 0
-        while dmax[initial_statep] - dmin[initial_statep] > tolerance:
+        while dmax[initial_id] - dmin[initial_id] > tolerance:
             itercount += 1
 
-            for sp in stateps:
-                if sp in frozen:
+            for i in range(n):
+                if frozen[i]:
                     continue
 
-                if sp[0] == 0:
+                if is_choice[i]:
                     # choice node
-                    dmin[sp] = max(dmin[sp2] for sp2 in self.getSuccessors(sp))
-                    dmax[sp] = max(dmax[sp2] for sp2 in self.getSuccessors(sp))
+                    dmin[i] = max(dmin[j] for j in succ_ids[i])
+                    dmax[i] = max(dmax[j] for j in succ_ids[i])
                 else:
-                    dmin[sp] = sum(dmin[sp2] * p for sp2,
-                                   p in self.getSuccessors(sp))
-                    dmax[sp] = sum(dmax[sp2] * p for sp2,
-                                   p in self.getSuccessors(sp))
+                    dmin[i] = sum(dmin[j] * p for j, p in succ_ids[i])
+                    dmax[i] = sum(dmax[j] * p for j, p in succ_ids[i])
 
-                if dmin[sp] >= dmax[sp]:
-                    dmax[sp] = dmin[sp] = (dmin[sp] + dmax[sp]) / 2
-                    frozen.add(sp)
-        return (dmax[initial_statep] + dmin[initial_statep]) / 2
+                if dmin[i] >= dmax[i]:
+                    dmax[i] = dmin[i] = (dmin[i] + dmax[i]) / 2
+                    frozen[i] = True
+        return (dmax[initial_id] + dmin[initial_id]) / 2
 
 
 def bench_mdp(loops):
@@ -283,5 +321,5 @@ def bench_mdp(loops):
 
 if __name__ == "__main__":
     runner = pyperf.Runner()
-    runner.metadata['description'] = "MDP benchmark (optimized: float instead of Fraction)"
+    runner.metadata['description'] = "MDP benchmark (optimized: float instead of Fraction, id-indexed lists instead of dicts in evaluate())"
     runner.bench_time_func('mdp', bench_mdp)

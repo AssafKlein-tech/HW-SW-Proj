@@ -11,7 +11,7 @@ Run 'python3-dbg -m pyperf system tune' command to reduce the system jitter.
 Use pyperf stats, pyperf dump and pyperf hist to analyze results.
 Use --quiet option to hide these warnings.
 
-mdp: Mean +- std dev: 7.69 sec +- 0.39 sec
+mdp: Mean +- std dev: 3.36 sec +- 0.14 sec
 ==> [optimized] perf record FLAT (cpu-clock, 999 Hz, no call graph) -> perf_optimized_flat.data
 Couldn't record kernel reference relocation symbol
 Symbol resolution may be skewed if relocation was used (e.g. kexec).
@@ -20,16 +20,16 @@ perf_event__synthesize_bpf_events: failed to synthesize bpf images: No such file
 Couldn't synthesize bpf events.
 .....................
 WARNING: the benchmark result may be unstable
-* Not enough samples to get a stable result (95% certainly of less than 1% variation)
+* the standard deviation (424 ms) is 11% of the mean (3.97 sec)
 
 Try to rerun the benchmark with more runs, values and/or loops.
 Run 'python3-dbg -m pyperf system tune' command to reduce the system jitter.
 Use pyperf stats, pyperf dump and pyperf hist to analyze results.
 Use --quiet option to hide these warnings.
 
-mdp: Mean +- std dev: 8.00 sec +- 0.37 sec
-[ perf record: Woken up 96 times to write data ]
-[ perf record: Captured and wrote 23.789 MB perf_optimized_flat.data (621081 samples) ]
+mdp: Mean +- std dev: 3.97 sec +- 0.42 sec
+[ perf record: Woken up 43 times to write data ]
+[ perf record: Captured and wrote 10.673 MB perf_optimized_flat.data (277248 samples) ]
 Warning:
 Kernel address maps (/proc/{kallsyms,modules}) were restricted.
 
@@ -55,9 +55,9 @@ Run 'python3-dbg -m pyperf system tune' command to reduce the system jitter.
 Use pyperf stats, pyperf dump and pyperf hist to analyze results.
 Use --quiet option to hide these warnings.
 
-mdp: Mean +- std dev: 7.77 sec +- 0.13 sec
-[ perf record: Woken up 169 times to write data ]
-[ perf record: Captured and wrote 42.188 MB perf_optimized.data (619275 samples) ]
+mdp: Mean +- std dev: 4.04 sec +- 0.28 sec
+[ perf record: Woken up 81 times to write data ]
+[ perf record: Captured and wrote 20.037 MB perf_optimized.data (276940 samples) ]
 ==> [optimized] perf report --stdio -> perf_optimized_report.txt
 Warning:
 Kernel address maps (/proc/{kallsyms,modules}) were restricted.
@@ -72,7 +72,7 @@ Samples in kernel modules can't be resolved as well.
 ==> [optimized] flame graph -> flamegraph_optimized.svg
 ==> [optimized] cProfile caller/callee graph -> profile_callers_optimized.txt
 OK result=0.8987358988699945 -> wrote profile_callers_optimized.txt
-==> [optimized] done. flat: # Samples: 621K of event 'cpu-clock' | call-graph: # Samples: 619K of event 'cpu-clock'
+==> [optimized] done. flat: # Samples: 277K of event 'cpu-clock' | call-graph: # Samples: 276K of event 'cpu-clock'
 ==> Comparing baseline vs optimized
-Mean +- std dev: [mdp_baseline] 10.5 sec +- 0.7 sec -> [mdp_optimized] 7.69 sec +- 0.39 sec: 1.36x faster
+Mean +- std dev: [mdp_baseline] 10.5 sec +- 0.7 sec -> [mdp_optimized] 3.36 sec +- 0.14 sec: 3.12x faster
 ==> All done. Outputs are in /root/HW-SW-Proj/Mdp

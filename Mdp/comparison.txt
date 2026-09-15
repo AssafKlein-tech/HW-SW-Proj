@@ -1,1 +1,1 @@
-Mean +- std dev: [mdp_baseline] 10.5 sec +- 0.7 sec -> [mdp_optimized] 7.69 sec +- 0.39 sec: 1.36x faster
+Mean +- std dev: [mdp_baseline] 10.5 sec +- 0.7 sec -> [mdp_optimized] 3.36 sec +- 0.14 sec: 3.12x faster
