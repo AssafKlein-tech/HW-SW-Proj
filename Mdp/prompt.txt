@@ -1,0 +1,83 @@
+================================================================================
+AI Tool Usage Disclosure - mdp benchmark
+Tool used: Claude Code (Anthropic)
+================================================================================
+
+Per the project's AI-tools policy, this file lists the prompts I gave the AI
+tool that materially shaped the work (setup/debugging groundwork, analysis
+direction, or code changes). Minor clarifying back-and-forth is omitted; the
+prompts below are reproduced as sent.
+
+--------------------------------------------------------------------------------
+1. Initial perf setup problem (environment groundwork, applies to all later
+   profiling on this VM)
+--------------------------------------------------------------------------------
+"I try to run pyperf as my instructor told me:
+perf record -F 999 -g -- python3-dbg -m pyperformance run --bench json_dumps
+then:
+perf report --stdio > perf_report.txt
+but I get errors of no data was found. how can we fix it?"
+
+-> Outcome: diagnosed that this VM's KVM hypervisor doesn't deliver the PMU
+sampling interrupt, so perf record with the default `cycles` hardware event
+silently captures zero samples. Fix (used in every perf record command for
+the rest of the project): use a software event, `-e cpu-clock`, instead.
+
+
+--------------------------------------------------------------------------------
+2. Confirming the exact state/node count
+--------------------------------------------------------------------------------
+"how many nodes are there in the graph?"
+
+-> Outcome: counted directly instead of inferring from profiling call counts:
+4,823 total nodes (states) in the reachable graph, broken down by node kind
+(1,162 choice nodes, 2,324 stage-B nodes, 1,335 stage-C nodes, 2 terminal
+win/loss nodes), and 22,418 directed edges. This exact count is what "4823
+states" in the next prompt refers to.
+
+--------------------------------------------------------------------------------
+3. Specifying optimization 2 directly
+--------------------------------------------------------------------------------
+"we know from the profiling that we have only 4823 states. we want to use
+list instead of dict for improving the access time (arithmetic calculation
+instead of hash). change the successors dict, min dict, max dict into list
+of id's we can creat on the topological sort, and the frozen dict into a
+list of booleans (freezed or not) indexed by the id's from the beggining"
+
+-> Outcome: this is the exact design implemented in optimization 2 -
+assigning each state an integer id from the topological sort's output order,
+and converting the dmin/dmax/frozen dicts and the successor lookups used in
+the hot evaluate() loop into plain lists indexed by that id.
+
+--------------------------------------------------------------------------------
+4. Sanity-checking the optimization-2 result
+--------------------------------------------------------------------------------
+"I thought the Hashes were about 24% of the total run - approx 2.5 seconds.
+how did we drop to 3.3? thats look way too good"
+followed by:
+"how much the lookdict_unicode_nodummy, lookdict, long_hash, dict
+resizing/probing) took on the original benchmark?"
+
+-> Outcome: re-examined the flat perf report symbol-by-symbol, confirmed the
+~24% figure was actually the Fraction cost (a different measurement) rather
+than the hash/dict cost, and confirmed the larger-than-naively-expected
+speedup was because optimization 2 eliminated ~779,000 redundant
+getSuccessors() calls entirely, not just made each hash lookup cheaper. This
+verification is reflected in section 4 (Performance Comparison) above.
+
+--------------------------------------------------------------------------------
+5. Committing the work
+--------------------------------------------------------------------------------
+"great. now commit the work in 3 parts. first of all the base line, then the
+first optimization (fraction) - code + profiling results, then the third -
+code + profiling results."
+
+-> Outcome: three commits, each with genuinely-regenerated code + profiling
+data for that stage (baseline; Fraction->float; id-indexed lists).
+
+--------------------------------------------------------------------------------
+6. Writing this report
+--------------------------------------------------------------------------------
+"now write the report as was described in the project.pdf"
+
+-> Outcome: report_mdp.txt and this file.
