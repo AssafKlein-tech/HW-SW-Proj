@@ -1,0 +1,170 @@
+================================================================================
+SOFTWARE OPTIMIZATION OF THE pyperformance `go` BENCHMARK
+iterative union-find + __slots__ on Square - two changes, 20 lines, 1.18x
+================================================================================
+Baseline 428 ms/iteration (pyperf mean).  All figures measured, not estimated.
+Target was 7%; delivered 15%.  Full detail: benchmark_analysis.md,
+results/profile_report.md, results/improvement_report.md
+
+
+1. WHAT THE BENCHMARK IS, AND WHAT IT USES
+--------------------------------------------------------------------------------
+A pure-Python Monte-Carlo Go engine.  versus_cpu() seeds the RNG with 1, builds
+an empty 9x9 board and asks for ONE move.  Choosing it costs GAMES=200 full
+simulated games, so the benchmark measures interpreter throughput on tight
+object-oriented pointer-chasing code - attribute access, method calls, small-int
+arithmetic, list indexing.  It is deterministic: the answer is always 5.
+
+LIBRARIES - standard library only, no third-party dependencies:
+    random    playout move choice + Zobrist key generation
+    math      sqrt/log for the UCB1 exploration term
+    pyperf    timing harness only; not part of the workload
+
+Nothing to dive into below the benchmark.  The one external behaviour that
+matters is that random.random()/randrange() draw from the Mersenne Twister in a
+fixed order - so preserving the NUMBER and ORDER of draws preserves the entire
+simulation.  That fact is what makes the correctness gate in section 4 possible.
+
+
+2. DATA STRUCTURES AND ALGORITHMS
+--------------------------------------------------------------------------------
+    Square x81      one board point.  color, ledges (= liberty count),
+                    reference (union-find parent), neighbours (precomputed once)
+    union-find      stone groups.  find() walks reference to the group root;
+                    move() unions with same-colour neighbours, merging liberties
+    EmptySet        empties[] + empty_pos[]; O(1) add/remove by swap-with-last,
+                    and uniform sampling with in-place rejection
+    ZobristHash     incremental XOR board hash + a set of every hash ever seen
+                    -> O(1) superko detection
+    UCTNode         search tree; pos_child is a flat 81-slot list, plus
+                    wins/losses and a cached bestchild
+
+ALGORITHMS
+  * UCT/MCTS.  Descend (unexplored children first, else cached bestchild),
+    expand one node, random playout, back the result up the path.  Score is
+    UCB1: winrate + sqrt(log(parent_visits) / (5 * node_visits)).
+  * Random playout.  Up to MAXMOVES=243 moves of random_choice per game.
+  * Board.useful(pos) - the hot predicate.  Speculatively plays the stone,
+    counts friendly/enemy groups via find(), decrements temp_ledges to detect
+    captures, tests the Zobrist hash for a superko repeat, then rolls back.
+  * Scoring.  Area scoring, KOMI=7.5; empty points fully surrounded count.
+
+Note: useful() fakes per-call scratch marks with a global TIMESTAMP epoch
+counter, because clearing 81 flags per call would cost more than the check.
+
+WORK PER ITERATION   21,401 stones played · 59,658 useful() · 183,082 find()
+
+
+3. WHERE THE TIME GOES
+--------------------------------------------------------------------------------
+Two independent profiles, in agreement: cProfile (call counts) and py-spy
+sampling at 500 Hz (22,278 samples / 45 s).  Flame graph: results/flamegraph.svg
+
+    function                 self time     calls
+    Square.find                  23.1%   463,922
+    Board.useful                 21.1%    59,658
+    Square.move                   9.5%    21,401
+    EmptySet.random_choice        7.6%    21,803
+    Square.remove                 5.2%    15,346
+
+The distribution is FLAT and no entry spends its time in callees.  That argues
+against a single algorithmic fault and for interpreter overhead - which splits
+into two independent signals:
+
+  SIGNAL 1 - CALL OVERHEAD.  Of 463,922 find() calls only 183,082 are outermost;
+    280,840 are recursive re-entries.  Its dominant caller, useful(), passes
+    update=False (it is a dry run and must not mutate), so path compression
+    NEVER fires and identical parent chains are re-walked.  Depth: mean 1.53,
+    max 8.  A profiler-free microbenchmark gives 177 ns/hop recursive against
+    76 ns iterative - 57% of each hop beyond the first is call/return overhead,
+    not the pointer chase.
+
+  SIGNAL 2 - ATTRIBUTE ACCESS.  INVISIBLE TO BOTH PROFILERS: LOAD_ATTR and
+    STORE_ATTR are inlined bytecode, charged to the enclosing function's self
+    time.  Establishing it needed a dynamic opcode census:
+
+        LOAD_FAST               28.9%  of all executed bytecode (~free)
+        LOAD_ATTR               14.4%  <- 2nd most frequent, much the priciest
+        all attribute opcodes   17.2%
+
+    Attribute ops per function - find 28.7%, useful 19.5%, move 15.6%, remove
+    8.7% - rank in the SAME ORDER as the self-time table.  The hot functions
+    are hot in proportion to their attribute traffic.
+
+
+4. THE TWO OPTIMIZATIONS
+--------------------------------------------------------------------------------
+Both are confined to class Square.  Neither touches the algorithm, and neither
+adds, removes or reorders a random.* call.
+
+  4.1  find(): recursion -> while loop.  The compression policy is UNCHANGED -
+       still gated on `update`, so the speculative path still mutates nothing.
+       Removes 280,840 interpreter frames per iteration.  Side benefit: no
+       CPython recursion-limit dependency.
+
+  4.2  __slots__ on Square (11 attributes, verified exhaustive; no subclasses,
+       nothing touches __dict__).  Instance state leaves a per-instance dict:
+       408 B in 2 allocations -> 120 B in 1, and each access becomes a
+       fixed-offset load instead of a dictionary probe.
+
+VERIFIED - bit-identical, not merely "same answer".  Every run compares 8
+dimensions against the baseline (tools/verify.py):
+  * returned move (5), total MOVES (21,401), final TIMESTAMP (81,059)
+  * 44,382 RNG draws consumed, AND the next unconsumed draw - the strictest
+    cheap proof that no decision path diverged anywhere
+  * all 201 UCT nodes (pos, wins, losses)
+  * all 200 simulated games (history, board, Zobrist hash, both scores)
+
+
+5. MEASURED GAINS AND TRADE-OFFS
+--------------------------------------------------------------------------------
+20 interleaved rounds, 240 values per variant, single vCPU, CPython 3.10.12.
+
+    statistic      baseline   optimized    change
+    mean             428 ms      363 ms    -15.2%     (1.18x)
+    median           410 ms      347 ms    -15.4%
+    minimum          390 ms      328 ms    -15.9%
+
+  Cross-checked by two further protocols: a low-noise process_time run gives
+  -15.3%, an independent interleaved A/B -15.8%.  Three protocols agree.
+
+MECHANISM CONFIRMED   find() calls 463,922 -> 183,082
+                      find() sampled self time 22.4% -> 15.9%
+
+ATTRIBUTION - each change applied alone
+    iterative find                 -5.0%
+    __slots__ on Square           -11.1%
+
+  THE PROFILE RANKING WAS MISLEADING.  The change the profiler pointed at
+  directly was worth less than half of the change the profiler could not see at
+  all.  __slots__ also beat its own microbenchmark prediction (~5%), because
+  that micro hammered ONE object in a tight loop - permanently cache-hot, the
+  best case for a dict.  The real engine pointer-chases 81 squares and their 81
+  separate dict objects.
+
+REJECTED AFTER MEASUREMENT - left out to hold the diff to two changes
+    always-compress find()     not statistically significant (chains too short)
+    inline useful_fast()       ~1-2%, and it obscures the predicate
+    hoist TIMESTAMP global     <1%
+    best_child() double score  real, but only 1.8% of tottime
+
+TRADE-OFFS
+  READABILITY  the loop is 2 lines longer than the recursion; __slots__ costs
+               a class that can no longer take dynamic attributes.  Both are
+               permanent constraints on the class, paid once.
+  PORTABILITY  3.10 has no specializing interpreter.  Under 3.11+ LOAD_ATTR is
+               specialized for dict instances, so 4.2 should shrink - possibly
+               a lot.  4.1 is version-independent.
+  STACKING     the two are independent mechanisms (frames vs. what happens
+               inside a frame) and measured additively: 5.0 + 11.1 ~= 15.2.
+
+HONEST CAVEATS
+  * Contended single vCPU, +-15% run-to-run jitter.  That is WHY three
+    protocols were run; no single number here rests on one measurement.
+  * No PMU on this VM.  The cache-locality half of the __slots__ explanation
+    is reasoning from the measured footprint, not from counted cache misses.
+  * The opcode census ran with GAMES=4 (opcode tracing is ~100x slow), so its
+    SHARES are load-bearing, its absolute counts are not.
+  * The installed pyperformance package is untouched; baseline and optimized
+    live side by side in bm_go_baseline/ and bm_go_opt/.
+================================================================================
