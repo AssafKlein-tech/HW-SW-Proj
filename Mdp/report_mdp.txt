@@ -1,0 +1,246 @@
+================================================================================
+HWSW Project - Benchmark Report: mdp
+Technion 00460882
+================================================================================
+
+
+1. OVERVIEW
+--------------------------------------------------------------------------------
+
+The benchmark I chose is "mdp" from the pyperformance suite. Despite the name,
+it has nothing to do with numpy or machine learning: it is a small, pure-Python
+value-iteration solver over a Markov Decision Process that models a turn-based
+Pokemon-style battle between two fixed characters. The benchmark builds the
+full reachable state graph for this battle, then repeatedly sweeps over it
+computing a min/max fixed point (an upper and lower bound on the win
+probability from the initial state) until the two bounds converge to within a
+tolerance. The final answer is a single float, the probability that one
+specific side wins the battle under optimal play, and the benchmark's own
+correctness check asserts this comes out to 0.89873589887 (+/- 1e-6).
+
+Libraries and data structures used:
+  - Pure Python standard library only: no numpy, no third-party dependencies.
+  - collections.namedtuple for every piece of battle state (character stats,
+    fixed data, half-state, attack data) - the game state is a nested tuple of
+    tuples.
+  - collections.defaultdict for building probability distributions over
+    successor states during graph expansion.
+  - fractions.Fraction (in the original code) for exact rational arithmetic
+    when combining attack-damage probabilities.
+  - pyperf as the timing/benchmark harness (pyperf.Runner, bench_time_func).
+
+Algorithms used:
+  - An iterative (stack-based, not recursive) topological sort to order the
+    state graph before running value iteration, so that dependencies are
+    resolved in a sane order.
+  - Value iteration itself: a fixed-point loop that repeatedly recomputes a
+    lower bound (dmin) and upper bound (dmax) for every non-terminal state as
+    a function of its successors' current bounds, freezing a state once its
+    two bounds meet, until the initial state's bounds converge within
+    tolerance.
+  - Per-instance memoization of the successor-expansion function
+    (Battle.getSuccessors), since the same state can be reached via multiple
+    paths.
+
+I ran this locally on a KVM virtual machine (single vCPU) with Python's debug
+build (python3-dbg), as required so that perf can resolve CPython's internal
+symbols.
+
+
+2. INITIAL ANALYSIS (PROFILING)
+--------------------------------------------------------------------------------
+
+Environment note that affected every profiling step: this VM's hypervisor
+virtualizes the CPU's performance-counter *values* but not the performance-
+counter *interrupt* needed for sampling. I confirmed this empirically: `perf
+record -e cycles` (the default hardware event) silently captured zero samples,
+while `perf stat -e cycles` (which just reads counters, no interrupt) worked
+fine. Switching every `perf record` invocation to a software clock event
+(`-e cpu-clock`) fixed this and is what all of my profiling below uses.
+
+A second environment issue: python3-dbg on this machine is built with LTO,
+which strips frame pointers from parts of the interpreter. This means perf's
+default frame-pointer call-graph unwinding (`-g`) walks off into unrelated
+memory for most parent frames (~98% of frames in an early test came back
+"[unknown]"). Rather than fight this, I used two complementary tools instead:
+  - A "flat" perf profile (perf record with no call graph) for an accurate
+    ranked list of hot native functions by self time - this doesn't need
+    call-graph unwinding at all.
+  - cProfile, run directly against a single Battle().evaluate() call, for an
+    exact Python-level caller/callee graph. cProfile gets its call information
+    straight from the interpreter's own call/return events, so it has no
+    dependency on native stack unwinding whatsoever.
+
+Baseline measurement (pyperf, default 20-process x 3-value statistical
+protocol, python3-dbg): mean 10.5 sec +/- 0.7 sec per evaluate() call.
+
+Findings from the flat perf profile of the unmodified benchmark:
+  - _PyEval_EvalFrameDefault (the interpreter's own bytecode dispatch loop):
+    13.29% - this is the unavoidable baseline cost of running Python at all.
+  - PyObject_Hash: 9.96%, tuplehash: 8.37%. These two alone are 18.3% of all
+    samples.
+  - A long tail of dict-table machinery caused by the same thing:
+    lookdict_unicode_nodummy (3.25%), lookdict (2.50%), long_hash (2.12%),
+    lookdict_unicode (0.76%), dict_subscript, insertdict, dict_traverse,
+    PyDict_Contains, and dozens more small entries. Summing every hash/dict-
+    related symbol in the report comes to roughly 30% of all samples.
+
+Findings from cProfile (a single evaluate() call, 16.629 seconds under
+cProfile's own instrumentation overhead, 11,468,952 function calls):
+  - fractions.Fraction arithmetic (fractions.py: _add, forward, __new__,
+    numerator, plus the math.gcd calls Fraction makes internally) totals
+    about 3.9 of the 16.6 seconds - roughly 24% of runtime.
+  - Battle.getSuccessors was called 784,243 times in this single evaluate()
+    call, even though the battle only ever reaches about 4,823 distinct
+    states. The reason: the main value-iteration loop calls
+    self.getSuccessors(sp) twice per non-frozen state on every convergence
+    pass (once to update the lower bound, once for the upper bound), and it
+    does this on every pass until convergence - so the same, unchanging
+    successor relationship gets looked up over and over.
+
+Putting these two profiles together, I concluded there were two independent,
+low-risk targets: the Fraction arithmetic (a clear, bounded chunk of Python-
+level cost) and the sheer number of statep-tuple-keyed dict lookups driving
+the native hashing cost (a much larger, more diffuse cost spread across dozens
+of dict-machinery symbols, and made worse by redundant repeated lookups rather
+than any single expensive operation).
+
+
+3. OPTIMIZATIONS
+--------------------------------------------------------------------------------
+
+Optimization 1: replace fractions.Fraction with plain float
+
+Fraction is used only to build intermediate probability distributions inside
+getCritDist, _applyActionSide1, _getSuccessorsB and _getSuccessorsC. Looking
+closely at those four functions, every one of them already converts its
+result to a plain float before returning it to its caller (_getSuccessorsB
+and _getSuccessorsC both end with `float(p)`), and the value-iteration loop's
+own accumulators (dmin, dmax) were already `defaultdict(float)` from the
+start. In other words, Fraction's exactness was being thrown away a few lines
+later in every single case - it bought nothing.
+
+I also checked whether switching to float earlier could change the answer.
+Two of the three probability ratios involved (basespeed/pdiv, with pdiv
+always 64 or 512, both powers of two) are represented *exactly* in binary
+floating point regardless of when you convert - there's no approximation at
+all for those. The remaining ratios (64/130 and 66/130) round the same way
+float() would have rounded them at the point of final conversion anyway. The
+net numerical error from doing this substitution is on the order of 1e-15,
+far below the benchmark's own 1e-6 correctness tolerance, and I verified this
+directly: the benchmark's internal assertion still passes and the result is
+0.8987358988699945, matching the expected 0.89873589887.
+
+Optimization 2: replace statep-tuple dict keys with integer-id-indexed lists
+
+This one follows directly from a fact I already had from profiling: the
+battle only ever reaches about 4,823 distinct states. The value-iteration
+loop, though, was keying dmin, dmax, frozen (a set), and the memoized
+successor lists entirely by the raw statep tuple - a deeply nested tuple of
+namedtuples that has to be re-hashed from scratch on every single dict access
+(CPython tuples, unlike strings, don't cache their hash value).
+
+The fix: topoSort() already visits every reachable state exactly once, in a
+fixed order, as a normal side effect of building the topological order I need
+anyway. So I used that existing order to assign each state a plain integer id
+(its position in the list), and rebuilt dmin, dmax and frozen as plain Python
+lists indexed by that id instead of dicts/sets keyed by the tuple. I also
+precomputed, once, a `succ_ids` list mapping each state's id to the ids (and,
+for chance nodes, probabilities) of its successors - so the hot loop never
+needs to call getSuccessors() or hash a statep tuple at all; it just reads
+plain lists. getSuccessors(), getSuccessorsList() and topoSort() themselves
+are untouched - this only touches Battle.__init__ and Battle.evaluate().
+
+The effect on call counts alone is dramatic: getSuccessors() calls per
+evaluate() dropped from 784,243 to 4,821 (i.e. exactly once per state, during
+the one-time topological-sort discovery pass, and never again inside the hot
+loop). This is the real reason the speedup ended up much larger than the
+"~30% of samples are hash-related" figure from the flat profile would
+naively suggest: that figure only measures the cost *per* hash operation, not
+how many needless times the same lookup was being redone. Removing the
+redundant calls entirely, rather than just making each one cheaper, is what
+produced the outsized gain.
+
+
+4. PERFORMANCE COMPARISON
+--------------------------------------------------------------------------------
+
+All timing numbers below are from pyperf's default statistical protocol
+(20 processes x 3 values = 60 timed calls to evaluate(), python3-dbg), and
+each optimized version was verified to still produce the correct result
+(0.8987358988699945, within 1e-6 of expected) before being trusted.
+
+  Version                          Mean time        vs. baseline
+  --------------------------------------------------------------
+  Baseline (unmodified)            10.5 sec +/- 0.7    1.00x
+  + Fraction -> float               7.69 sec +/- 0.39   1.36x faster
+  + id-indexed lists (final)        3.36 sec +/- 0.14   3.12x faster
+
+The final version is roughly 68% faster than the baseline, comfortably past
+the project's 7% bar. Both optimizations individually clear the 7% bar as
+well (1.36x = 36% faster from the Fraction change alone).
+
+I cross-checked the final result with cProfile as well, since it is a single
+deterministic run and is completely immune to the VM's timing jitter that
+made pyperf flag some runs as "may be unstable": cProfile went from 16.629
+seconds (baseline) to 6.347 seconds (final), a 2.62x speedup, consistent with
+the 3.12x seen in the noisier pyperf measurement, and total function calls
+per evaluate() dropped from 11,468,952 to 6,172,672.
+
+The flat perf profile of the final version confirms the hash/dict machinery
+that used to dominate is largely gone: PyObject_Hash and tuplehash combined
+dropped from 18.3% of samples to under 3.5%, and lookdict_unicode_nodummy
+from 3.25% to under half that. _PyEval_EvalFrameDefault (the interpreter's
+own bytecode-dispatch overhead) is now the single largest cost, at 24% -
+which is essentially the practical floor for a pure-Python implementation of
+this algorithm; there is no more low-hanging dict/tuple overhead left to
+remove without changing the algorithm or data representation more radically
+(e.g. moving state off Python objects entirely).
+
+Supporting files (all under Mdp/ in the repository), one set per stage -
+baseline, the intermediate Fraction-only optimization (*_fraction_optimized*),
+and the final id-indexed-list optimization (*_optimized*, no stage suffix):
+  - mdp_baseline.json / mdp_fraction_optimized.json / mdp_optimized.json -
+    raw pyperf timing data
+  - comparison_fraction_optimized.txt / comparison.txt - pyperf compare_to
+    output (baseline-vs-Fraction-only, and baseline-vs-final respectively)
+  - perf_baseline_report.txt / perf_fraction_optimized_report.txt /
+    perf_optimized_report.txt - full perf call-graph reports
+  - perf_baseline_flat_report.txt / perf_fraction_optimized_flat_report.txt /
+    perf_optimized_flat_report.txt - flat (self-time) perf reports
+  - flamegraph_baseline.svg / flamegraph_fraction_optimized.svg /
+    flamegraph_optimized.svg - flame graphs
+  - profile_callers_baseline.txt / profile_callers_fraction_optimized.txt /
+    profile_callers_optimized.txt - cProfile caller/callee graphs
+  - mdp_fraction_optimized.py - benchmark source after optimization 1 only
+  - mdp_optimized.py - the final optimized benchmark source (both
+    optimizations applied)
+  - script_mdp.sh - the script that reproduces every measurement above
+
+
+5. HARDWARE ACCELERATION PROPOSAL
+--------------------------------------------------------------------------------
+
+Not yet completed. This project explicitly deferred the hardware-acceleration
+phase to focus on the software profiling/optimization work first; the
+proposal (hardware description, inputs/outputs, architecture, HW/SW
+interface, acceleration justification, block diagram, and performance/area/
+power trade-offs) will be added as a follow-up before final submission.
+
+
+6. CONCLUSION
+--------------------------------------------------------------------------------
+
+Starting from a careful, tool-cross-validated profile (perf flat profiling
+plus cProfile, since perf's native call-graph unwinding is unreliable under
+python3-dbg's LTO build), I identified two independent, low-risk optimization
+targets in the mdp benchmark: exact-but-unnecessary Fraction arithmetic, and
+a value-iteration hot loop that re-hashed the same nested-tuple state keys
+far more often than it needed to. Applying them incrementally - Fraction to
+float first, then statep-tuple dicts to integer-id-indexed lists - let me
+measure each optimization's individual contribution rather than only the
+combined effect. The two together give a 3.12x (roughly 68%) speedup over
+baseline, verified by two independent measurement methods (pyperf's
+statistical protocol and a deterministic cProfile run) and with correctness
+preserved throughout (the benchmark's internal 1e-6 tolerance check passes at
+every stage). This comfortably clears the project's 7% improvement bar.

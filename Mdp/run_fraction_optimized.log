@@ -1,0 +1,78 @@
+==> Speed mode: default (20 processes x 3 values, ~14 min)
+==> Environment setup
+==> Skipping baseline (--skip-baseline)
+==> [optimized] pyperformance timing run -> mdp_optimized.json
+.....................
+WARNING: the benchmark result may be unstable
+* Not enough samples to get a stable result (95% certainly of less than 1% variation)
+
+Try to rerun the benchmark with more runs, values and/or loops.
+Run 'python3-dbg -m pyperf system tune' command to reduce the system jitter.
+Use pyperf stats, pyperf dump and pyperf hist to analyze results.
+Use --quiet option to hide these warnings.
+
+mdp: Mean +- std dev: 7.69 sec +- 0.39 sec
+==> [optimized] perf record FLAT (cpu-clock, 999 Hz, no call graph) -> perf_optimized_flat.data
+Couldn't record kernel reference relocation symbol
+Symbol resolution may be skewed if relocation was used (e.g. kexec).
+Check /proc/kallsyms permission or run as root.
+perf_event__synthesize_bpf_events: failed to synthesize bpf images: No such file or directory
+Couldn't synthesize bpf events.
+.....................
+WARNING: the benchmark result may be unstable
+* Not enough samples to get a stable result (95% certainly of less than 1% variation)
+
+Try to rerun the benchmark with more runs, values and/or loops.
+Run 'python3-dbg -m pyperf system tune' command to reduce the system jitter.
+Use pyperf stats, pyperf dump and pyperf hist to analyze results.
+Use --quiet option to hide these warnings.
+
+mdp: Mean +- std dev: 8.00 sec +- 0.37 sec
+[ perf record: Woken up 96 times to write data ]
+[ perf record: Captured and wrote 23.789 MB perf_optimized_flat.data (621081 samples) ]
+Warning:
+Kernel address maps (/proc/{kallsyms,modules}) were restricted.
+
+Check /proc/sys/kernel/kptr_restrict before running 'perf record'.
+
+As no suitable kallsyms nor vmlinux was found, kernel samples
+can't be resolved.
+
+Samples in kernel modules can't be resolved as well.
+
+==> [optimized] perf record (cpu-clock, 999 Hz, frame-pointer call graph) -> perf_optimized.data
+Couldn't record kernel reference relocation symbol
+Symbol resolution may be skewed if relocation was used (e.g. kexec).
+Check /proc/kallsyms permission or run as root.
+perf_event__synthesize_bpf_events: failed to synthesize bpf images: No such file or directory
+Couldn't synthesize bpf events.
+.....................
+WARNING: the benchmark result may be unstable
+* Not enough samples to get a stable result (95% certainly of less than 1% variation)
+
+Try to rerun the benchmark with more runs, values and/or loops.
+Run 'python3-dbg -m pyperf system tune' command to reduce the system jitter.
+Use pyperf stats, pyperf dump and pyperf hist to analyze results.
+Use --quiet option to hide these warnings.
+
+mdp: Mean +- std dev: 7.77 sec +- 0.13 sec
+[ perf record: Woken up 169 times to write data ]
+[ perf record: Captured and wrote 42.188 MB perf_optimized.data (619275 samples) ]
+==> [optimized] perf report --stdio -> perf_optimized_report.txt
+Warning:
+Kernel address maps (/proc/{kallsyms,modules}) were restricted.
+
+Check /proc/sys/kernel/kptr_restrict before running 'perf record'.
+
+As no suitable kallsyms nor vmlinux was found, kernel samples
+can't be resolved.
+
+Samples in kernel modules can't be resolved as well.
+
+==> [optimized] flame graph -> flamegraph_optimized.svg
+==> [optimized] cProfile caller/callee graph -> profile_callers_optimized.txt
+OK result=0.8987358988699945 -> wrote profile_callers_optimized.txt
+==> [optimized] done. flat: # Samples: 621K of event 'cpu-clock' | call-graph: # Samples: 619K of event 'cpu-clock'
+==> Comparing baseline vs optimized
+Mean +- std dev: [mdp_baseline] 10.5 sec +- 0.7 sec -> [mdp_optimized] 7.69 sec +- 0.39 sec: 1.36x faster
+==> All done. Outputs are in /root/HW-SW-Proj/Mdp

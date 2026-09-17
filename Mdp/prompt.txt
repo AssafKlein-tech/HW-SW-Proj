@@ -1,0 +1,94 @@
+================================================================================
+AI Tool Usage Disclosure - mdp benchmark
+Tool used: Claude Code (Anthropic)
+================================================================================
+
+Per the project's AI-tools policy, this file lists the prompts I gave the AI
+tool that materially shaped the work (setup/debugging groundwork, analysis
+direction, or code changes). Minor clarifying back-and-forth is omitted; the
+prompts below are reproduced as sent.
+
+--------------------------------------------------------------------------------
+1. Initial perf setup problem (environment groundwork, applies to all later
+   profiling on this VM)
+--------------------------------------------------------------------------------
+"I try to run pyperf as my instructor told me:
+perf record -F 999 -g -- python3-dbg -m pyperformance run --bench json_dumps
+then:
+perf report --stdio > perf_report.txt
+but I get errors of no data was found. how can we fix it?"
+
+-> Outcome: diagnosed that this VM's KVM hypervisor doesn't deliver the PMU
+sampling interrupt, so perf record with the default `cycles` hardware event
+silently captures zero samples. Fix (used in every perf record command for
+the rest of the project): use a software event, `-e cpu-clock`, instead.
+
+--------------------------------------------------------------------------------
+2. Starting the mdp benchmark work
+--------------------------------------------------------------------------------
+"I have a homework on Project.pdf file. I work on MDP benchmark. please help
+do that. we can write the propt to other agent to do the work as they
+suggested. tell me what the steps, what should I do and what the agent do.
+lets focus for now on the SW optimization rather than the HW."
+
+-> Outcome: read Project.pdf's requirements, identified the mdp benchmark's
+source and behavior, and planned the profiling -> bottleneck analysis ->
+optimize -> re-profile -> compare pipeline used throughout this report.
+
+--------------------------------------------------------------------------------
+3. Requesting the simpler variant of optimization 1
+--------------------------------------------------------------------------------
+"can you do it without the lru_cache optimization?"
+
+-> Outcome: removed a functools.lru_cache memoization I had added on top of
+the Fraction->float change, keeping optimization 1 to exactly one change
+(Fraction -> float) so its effect could be measured in isolation.
+
+--------------------------------------------------------------------------------
+4. Specifying optimization 2 directly
+--------------------------------------------------------------------------------
+"after it finishses and you report the results do the next optimization:
+we know from the profiling that we have only 4823 states. we want to use
+list instead of dict for improving the access time (arithmetic calculation
+instead of hash). change the successors dict, min dict, max dict into list
+of id's we can creat on the topological sort, and the frozrn dict into a
+list of booleans (freezed or not) indexed by the id's from the beggining"
+
+-> Outcome: this is the exact design implemented in optimization 2 -
+assigning each state an integer id from the topological sort's output order,
+and converting the dmin/dmax/frozen dicts and the successor lookups used in
+the hot evaluate() loop into plain lists indexed by that id.
+
+--------------------------------------------------------------------------------
+5. Sanity-checking the optimization-2 result
+--------------------------------------------------------------------------------
+"I thought the Hashes were about 24% of the total run - approx 2.5 seconds.
+how did we drop to 3.3? thats loook way too good"
+followed by:
+"how mush the lookdict_unicode_nodummy, lookdict, long_hash, dict
+resizing/probing) took on the original benchmark?"
+
+-> Outcome: re-examined the flat perf report symbol-by-symbol, confirmed the
+~24% figure was actually the Fraction cost (a different measurement) rather
+than the hash/dict cost, and confirmed the larger-than-naively-expected
+speedup was because optimization 2 eliminated ~779,000 redundant
+getSuccessors() calls entirely, not just made each hash lookup cheaper. This
+verification is reflected in section 4 (Performance Comparison) above.
+
+--------------------------------------------------------------------------------
+6. Committing the work
+--------------------------------------------------------------------------------
+"great. now commit the work in 3 parts. first of all the base line, then the
+first optimization (fraction) - code + profiling results, then the third -
+code + profiling results."
+
+-> Outcome: three commits, each with genuinely-regenerated code + profiling
+data for that stage (baseline; Fraction->float; id-indexed lists).
+
+--------------------------------------------------------------------------------
+7. Writing this report
+--------------------------------------------------------------------------------
+"now write the report as was described in the project.pdf. write it as I did
+the work, and add only the importent prompt I sent you."
+
+-> Outcome: report_mdp.txt and this file.
