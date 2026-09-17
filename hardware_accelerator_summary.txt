@@ -1,0 +1,190 @@
+================================================================================
+HARDWARE ACCELERATOR FOR THE pyperformance `go` BENCHMARK
+go_useful_accel - offloads Board.useful() to a shadow board in hardware
+================================================================================
+Baseline 392 ms/iteration (CPU time).  All figures measured, not estimated,
+except where marked PROJECTED.  Full detail: hardware_accelerator.md
+
+
+1. WHY THIS COMPONENT IS A GOOD CANDIDATE
+--------------------------------------------------------------------------------
+The candidate was chosen by measurement, not by profile ranking.  For each
+option I recorded every return value during a real run, then replayed those
+answers from a list; the wall-clock delta is exactly what that function costs.
+
+    boundary        calls/iter   offloadable   share    budget per round trip
+    Square.find       183,082         48 ms    12.3%          0.26 us
+    Board.useful       59,658        185 ms    47.3%          3.11 us
+
+  * Square.find is the hottest function by self time - and offloading it LOSES.
+    A 0.26 us budget is below the cost of any real bus transaction.
+  * Board.useful has 12x more headroom, and it contains find().  It is the
+    coarsest unit that is still a simple pure predicate, and the finest unit
+    a real interface can beat.
+
+Why it suits hardware:
+  * PURE.  No RNG, no I/O, no allocation; commits nothing.  Determinism - the
+    whole correctness story of this benchmark - is preserved by construction.
+  * REPRESENTATION MISMATCH.  CPython spends ~3.1 us on ~5 pointer hops, ~10
+    small-int compares and two 63-bit XORs.  Every one is a boxed object, a
+    slot lookup and a refcount.  In hardware: ~16 cycles of flops and an XOR.
+  * TINY STATE.  The whole 9x9 board is ~18 kbit, fully on chip.  No DRAM,
+    no DMA, no cache, no coherence.
+  * IRREGULAR AND SERIAL.  Union-find pointer chasing defeats SIMD and GPU
+    offload; a 1-cycle-per-hop FSM handles it trivially.
+
+
+2. HARDWARE ARCHITECTURE
+--------------------------------------------------------------------------------
+A shadow copy of the board's group/liberty structure: union-find + liberty
+counts + incremental Zobrist hash.
+
+INPUTS                                  OUTPUTS
+  opcode      4 b                         fast_path     1 b
+  pos         7 b   (0..80)               useful_cond   1 b
+  color       2 b   (EMPTY/WHITE/BLACK)   hash         63 b
+  key        63 b   (243 per board)       busy / done   1 b each
+
+OPCODES   0 NOP · 1 RESET · 2 MOVE(pos,color) · 3 USEFUL(pos,color) · 4 LOAD_KEY
+
+INTERNAL STATE  (~18 kbit, all on chip)
+  color[81] x 2 b      ref[81] x 7 b  (union-find parent)
+  ledges[81] x 9 b     used[81] x 1 b       temp_ledges[81] x 9 b
+  root_seen[81], removed[81] x 1 b          hash 63 b
+  ZKEY RAM 243 x 63 b (1 BRAM)              NEIGH_ROM 81 x 32 b (elaborated)
+
+DATAPATH BLOCKS
+  Sequencer FSM ....... 24 states, two micro-subroutines
+  FIND walker ......... while (ref[p] != p) p = ref[p];  1 cycle per hop
+                        (path-compresses on the MOVE path only)
+  Liberty counters .... empties / opps / neighs / weak_opps / weak_neighs
+  Capture flood-fill .. DFS over a dying group, XOR-ing its keys
+  Zobrist XOR unit .... 63-bit
+
+Note: the software fakes per-call scratch marks with a global TIMESTAMP epoch
+counter because clearing 81 flags is expensive in Python.  In hardware that is
+one cycle, so the epoch trick disappears entirely.
+
+BLOCK DIAGRAM  ->  hw/accelerator_block_diagram.png
+
+  +---------------------+                       +--------------------------+
+  |      HOST CPU       |  USEFUL(pos,color)    |     go_useful_accel      |
+  |     CPython 3.10    | --------------------> |  +--------------------+  |
+  |                     |        1 write        |  |   Sequencer FSM    |  |
+  | UCT search,         |                       |  | FIND · counters    |  |
+  | playouts,           |  fast  cond  hash     |  | flood-fill · XOR   |  |
+  | Board.move,         | <-------------------- |  +--------------------+  |
+  | scoring, empty set, |        2 reads        |  +--------------------+  |
+  | superko hash set    |                       |  | Shadow board state |  |
+  |                     |  MOVE(pos,color)      |  | 81 pts, ZKEY RAM   |  |
+  | authoritative state | --------------------> |  | ~18 kbit           |  |
+  +---------------------+   posted, no reply    |  +--------------------+  |
+                                                +--------------------------+
+                        AXI4-Lite · 32-bit · 100 MHz
+
+
+3. HARDWARE / SOFTWARE INTERFACE
+--------------------------------------------------------------------------------
+AXI4-Lite slave, 32-bit, 100 MHz.  The Python board stays AUTHORITATIVE; the
+accelerator is a shadow.  The exact superko hash set stays in software - it is
+unbounded, and a false positive would change the game.
+
+REGISTER MAP
+  0x00  CMD      W   [31:28] op, [8:7] color, [6:0] pos   - the write starts it
+  0x04  STAT     R   [0] busy [1] done [2] useful_cond [3] fast_path
+  0x08  RES_LO   R   hash[31:0]
+  0x0C  RES_HI   R   [30:0] hash[62:32], [31] done  - poll this one register
+  0x10  KEY_LO   W   key[31:0]
+  0x14  KEY_HI   W   key[62:32]
+  0x18  KEY_IDX  W   [8:0] = square*3 + color
+
+TRANSACTIONS
+  USEFUL  1 posted write -> FSM runs -> poll RES_HI[31] -> 2 reads
+  MOVE    1 posted write, no readback: the CPU never stalls on it
+  Per benchmark iteration: 59,658 USEFUL round trips + 21,401 posted writes
+
+SOFTWARE CHANGE - the entire diff is ~15 lines
+  Board.__init__ :  ACCEL.load_keys(self.squares)   # 243 writes, once
+  Board.reset    :  ACCEL.reset()
+  Board.move     :  ACCEL.move(pos, self.color)     # after square.move()
+  Board.useful   :  fast, cond, h = ACCEL.useful(pos, self.color)
+                    if fast: return True
+                    return bool(cond) and h not in self.zobrist.hash_set
+
+VERIFIED
+  * Bit-identical to baseline: result 5, all 44,382 RNG draws, the next
+    unconsumed draw, all 201 UCT nodes, all 200 game boards/hashes/scores.
+  * Shadow never desyncs: after each of 22,121 moves, hardware and software
+    agree on hash, all 81 colours and the group partition - 0 mismatches.
+  * RTL replays all 81,747 recorded ops against the golden model - PASS.
+  * The testbench was mutation-tested: 3 injected RTL bugs, all 3 caught.
+
+
+4. EXPECTED GAINS AND TRADE-OFFS
+--------------------------------------------------------------------------------
+MEASURED CYCLE COUNTS (Icarus Verilog, full 81,747-op replay)
+
+    op                  count      min     mean      max
+    USEFUL fast path   28,199        2     2.00        2      47% of calls
+    USEFUL full path   31,459       11    29.40      553
+    USEFUL all         59,658        2    16.45      553      = 0.165 us
+    MOVE               21,401       11    28.41      655
+    RESET                 202      164   164.00      164
+
+  Mean USEFUL is 19x inside the 3.11 us budget.  The whole op stream is
+  17.1 ms of hardware time against the 185 ms of software it replaces.
+
+PROJECTED SPEEDUP  (software floor 207 ms; T_txn = one round trip)
+
+    T_txn     integration                              runtime   speedup
+    0.30 us   shared-memory mailbox / coherent port     228 ms     1.72x
+    0.50 us   tightly-coupled fabric, C extension       240 ms     1.64x
+    1.00 us   AXI4-Lite over Zynq GP, C extension       270 ms     1.45x
+    1.50 us   AXI4-Lite, ctypes shim                    300 ms     1.31x
+    3.11 us   BREAK-EVEN                                396 ms     1.00x
+    0         Amdahl limit for this partition           210 ms     1.87x
+
+  Headline: ~1.45x expected, 1.3-1.7x across plausible integrations.
+
+TRADE-OFFS
+
+  PERFORMANCE vs HW COMPLEXITY - three points, only the middle is worth building
+    Square.find    trivial RTL (a pointer walker)    < 1.0x  - LOSES
+    Board.useful   one FSM, ~18 kbit state           ~1.45x  - this design
+    whole playout  RNG+UCT+scoring in RTL            ~3x, ~10x the verification
+
+  AREA        ~1.6 k flops + 1 BRAM18 + ~1.5 k LUT; under 2% of a Zynq-7020.
+              The cost is the 81:1 read muxes, not arithmetic.
+
+  FREQUENCY   Critical path is one FIND hop: 81:1 mux -> compare -> mux select,
+              4-5 logic levels.  200 MHz+ is comfortable.  100 MHz only matches
+              the host bus - running faster BUYS NOTHING, because 0.165 us of
+              compute already sits inside a ~1 us transaction.
+
+  POWER       Tens of mW of fabric dynamic power; no external memory traffic;
+              idle >80% of the time.  Energy per useful() improves far more
+              than latency, since the CPU alternative burns 3.1 us of a full
+              out-of-order core.  But TOTAL system power RISES: the host spins
+              in a polling loop during the round trip, so fabric power is
+              additive.  Sleeping is not an option - it costs more than the
+              whole transaction.
+
+  THE REAL BOTTLENECK IS THE INTERFACE, NOT THE SILICON.  Every speedup figure
+  is a function of T_txn.  That is why the complexity budget went on making
+  transactions RARE (one per useful(); MOVE is posted) rather than on making
+  the datapath fast.  Halving the RTL cycle count moves the result by <2%;
+  halving bus latency moves it by ~10%.
+
+HONEST CAVEATS
+  * This CANNOT be measured here - no FPGA.  The Python model of the
+    accelerator is slower than the code it replaces; it exists to prove
+    correctness, not speed.  Speedups are analytical: one measured quantity
+    (185 ms offloadable, 3.11 us/call) plus one stated T_txn assumption.
+  * Worst-case USEFUL is 553 cycles = 5.53 us, ABOVE the 3.11 us budget.
+    That is 31 of 59,658 calls (0.05%), and in aggregate the hardware spends
+    9.8 ms against 185 ms, so it is noise - but it is a real asymmetry.
+    A two-word-wide ZKEY RAM would remove ~40% of the flood-fill cost.
+  * Stacking with the earlier software optimizations is SUB-ADDITIVE: those
+    attack find() inside useful(), the same 47%.  Expect ~1.5x combined,
+    not 1.18 x 1.45.
+================================================================================
