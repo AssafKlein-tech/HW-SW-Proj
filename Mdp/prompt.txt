@@ -25,7 +25,21 @@ the rest of the project): use a software event, `-e cpu-clock`, instead.
 
 
 --------------------------------------------------------------------------------
-2. Confirming the exact state/node count
+2. Motivating the cProfile caller/callee analysis
+--------------------------------------------------------------------------------
+"yes I want you to add it, but I also want to know from the original script
+(run_benchmark) which function called which hot function. can you resolve
+the names?"
+
+-> Outcome: since python3-dbg's LTO build drops frame pointers, perf's native
+call-graph unwinding (-g) is unreliable (~98% "[unknown]" frames). This
+request is what led to writing profile_callers.py, a cProfile-based wrapper
+that gives exact Python-level caller/callee names and costs, independent of
+perf's native unwinding. Used at every stage (baseline, Fraction-only, final)
+as the complementary, jitter-immune cross-check to the flat perf profiles.
+
+--------------------------------------------------------------------------------
+3. Confirming the exact state/node count
 --------------------------------------------------------------------------------
 "how many nodes are there in the graph?"
 
@@ -33,10 +47,24 @@ the rest of the project): use a software event, `-e cpu-clock`, instead.
 4,823 total nodes (states) in the reachable graph, broken down by node kind
 (1,162 choice nodes, 2,324 stage-B nodes, 1,335 stage-C nodes, 2 terminal
 win/loss nodes), and 22,418 directed edges. This exact count is what "4823
-states" in the next prompt refers to.
+states" in the next prompts refers to.
 
 --------------------------------------------------------------------------------
-3. Specifying optimization 2 directly
+4. Originating the optimization-2 idea
+--------------------------------------------------------------------------------
+"we access each node through dictionary, if ther are only 4823 nodes, and
+22418 edges, can we save it as a different datastructure that doesn't need
+to apply hash function?"
+
+-> Outcome: this is where the idea for optimization 2 actually came from -
+asked as a question right after learning the exact node/edge count above.
+The response confirmed it was possible and better than what was planned so
+far, since topoSort already discovers all 4,823 reachable states in one pass
+before value iteration starts, so each state can be assigned a stable
+integer id right there and never hashed again.
+
+--------------------------------------------------------------------------------
+5. Specifying optimization 2 directly
 --------------------------------------------------------------------------------
 "we know from the profiling that we have only 4823 states. we want to use
 list instead of dict for improving the access time (arithmetic calculation
@@ -50,7 +78,7 @@ and converting the dmin/dmax/frozen dicts and the successor lookups used in
 the hot evaluate() loop into plain lists indexed by that id.
 
 --------------------------------------------------------------------------------
-4. Sanity-checking the optimization-2 result
+6. Sanity-checking the optimization-2 result
 --------------------------------------------------------------------------------
 "I thought the Hashes were about 24% of the total run - approx 2.5 seconds.
 how did we drop to 3.3? thats look way too good"
@@ -66,7 +94,7 @@ getSuccessors() calls entirely, not just made each hash lookup cheaper. This
 verification is reflected in section 4 (Performance Comparison) above.
 
 --------------------------------------------------------------------------------
-5. Committing the work
+7. Committing the work
 --------------------------------------------------------------------------------
 "great. now commit the work in 3 parts. first of all the base line, then the
 first optimization (fraction) - code + profiling results, then the third -
@@ -76,7 +104,7 @@ code + profiling results."
 data for that stage (baseline; Fraction->float; id-indexed lists).
 
 --------------------------------------------------------------------------------
-6. Writing this report
+8. Writing this report
 --------------------------------------------------------------------------------
 "now write the report as was described in the project.pdf"
 
