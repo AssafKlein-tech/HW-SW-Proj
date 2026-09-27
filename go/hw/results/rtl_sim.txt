@@ -1,0 +1,30 @@
+[tb] replaying sw_with_hw_interface/ops_trace.txt  (SIZE=9, NPTS=81, POSW=7, LEDGEW=9)
+[tb] 10000 ops replayed, 193402 cycles, 0 errors
+[tb] 20000 ops replayed, 404818 cycles, 0 errors
+[tb] 30000 ops replayed, 607811 cycles, 0 errors
+[tb] 40000 ops replayed, 822095 cycles, 0 errors
+[tb] 50000 ops replayed, 1032593 cycles, 0 errors
+[tb] 60000 ops replayed, 1245655 cycles, 0 errors
+[tb] 70000 ops replayed, 1466117 cycles, 0 errors
+[tb] 80000 ops replayed, 1666127 cycles, 0 errors
+
+=============================================================
+ go_useful_core trace replay summary
+=============================================================
+ ops replayed : 81747
+ sim cycles   : 1705080  (17050.8 us at 100 MHz)
+
+ op class        count      min     mean      max   (cycles)
+  LOAD_KEY          486        2     2.00        2
+  RESET             202      164   164.00      164
+  MOVE            21401       11    28.41      655
+  USEFUL fast     28199        2     2.00        2
+  USEFUL full     31459       11    29.40      553
+
+ latency tail        >50cy   >100cy  >200cy  >300cy
+  USEFUL full         1453      467     107      31
+  MOVE                2341      705     159      54
+ USEFUL no-mutation snapshots compared: 116
+
+ PASS - all 81747 ops matched the golden model
+=============================================================

@@ -1,0 +1,52 @@
+baseline : sw/run_benchmark_baseline.py
+optimized: sw/run_benchmark_find_only.py
+
+  OK    result      5
+  OK    draws       44382
+  OK    next_draw   0.09203656319550735
+  OK    node_count  201
+  OK    moves       21401
+  OK    timestamp   81059
+  OK    tree        201 entries
+  OK    games       200 entries
+
+VERIFIED: optimized output is bit-identical to baseline.
+baseline : sw/run_benchmark_baseline.py
+optimized: sw/run_benchmark_slots_only.py
+
+  OK    result      5
+  OK    draws       44382
+  OK    next_draw   0.09203656319550735
+  OK    node_count  201
+  OK    moves       21401
+  OK    timestamp   81059
+  OK    tree        201 entries
+  OK    games       200 entries
+
+VERIFIED: optimized output is bit-identical to baseline.
+baseline : sw/run_benchmark_baseline.py
+optimized: sw/run_benchmark.py
+
+  OK    result      5
+  OK    draws       44382
+  OK    next_draw   0.09203656319550735
+  OK    node_count  201
+  OK    moves       21401
+  OK    timestamp   81059
+  OK    tree        201 entries
+  OK    games       200 entries
+
+VERIFIED: optimized output is bit-identical to baseline.
+baseline : sw/run_benchmark_baseline.py
+optimized: hw/sw_with_hw_interface/run_benchmark.py
+
+  OK    result      5
+  OK    draws       44382
+  OK    next_draw   0.09203656319550735
+  OK    node_count  201
+  OK    moves       21401
+  OK    timestamp   81059
+  OK    tree        201 entries
+  OK    games       200 entries
+
+VERIFIED: optimized output is bit-identical to baseline.

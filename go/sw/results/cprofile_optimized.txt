@@ -1,0 +1,39 @@
+result: 5
+         846886 function calls (838486 primitive calls) in 0.809 seconds
+
+   Ordered by: internal time
+   List reduced from 55 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    59658    0.172    0.000    0.309    0.000 run_benchmark.py:212(useful)
+   183082    0.116    0.000    0.116    0.000 run_benchmark.py:96(find)
+    21401    0.089    0.000    0.220    0.000 run_benchmark.py:51(move)
+    21803    0.075    0.000    0.396    0.000 run_benchmark.py:120(random_choice)
+15346/6946    0.048    0.000    0.098    0.000 run_benchmark.py:77(remove)
+    22121    0.044    0.000    0.306    0.000 run_benchmark.py:188(move)
+    68206    0.043    0.000    0.043    0.000 run_benchmark.py:156(update)
+    21401    0.025    0.000    0.039    0.000 run_benchmark.py:136(remove)
+    59658    0.022    0.000    0.022    0.000 run_benchmark.py:205(useful_fast)
+    66627    0.021    0.000    0.021    0.000 run_benchmark.py:140(set)
+      200    0.019    0.000    0.729    0.004 run_benchmark.py:373(random_playout)
+    13965    0.016    0.000    0.021    0.000 run_benchmark.py:395(score)
+    21803    0.012    0.000    0.408    0.000 run_benchmark.py:202(random_move)
+    21401    0.011    0.000    0.016    0.000 run_benchmark.py:160(add)
+    31459    0.010    0.000    0.010    0.000 run_benchmark.py:163(dupe)
+     7964    0.010    0.000    0.012    0.000 run_benchmark.py:132(add)
+      400    0.010    0.000    0.012    0.000 run_benchmark.py:255(score)
+    57094    0.009    0.000    0.009    0.000 {built-in method builtins.len}
+    43696    0.008    0.000    0.008    0.000 {method 'random' of '_random.Random' objects}
+      319    0.006    0.000    0.027    0.000 run_benchmark.py:403(best_child)
+
+
+share of total profiled time (0.809 s), top 8 by self time
+function                           ncalls     self      cum
+useful                              59658    21.3%    38.3%
+find                               183082    14.4%    14.4%
+move                                21401    11.1%    27.2%
+random_choice                       21803     9.3%    49.0%
+remove                         15346/6946     5.9%    12.1%
+move                                22121     5.4%    37.9%
+update                              68206     5.3%     5.3%
+remove                              21401     3.1%     4.8%

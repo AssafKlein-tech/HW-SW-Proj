@@ -1,0 +1,4 @@
+empties never counted: caught
+weak_opps never counted: caught
+weak_opps dropped from cond: caught
+3 of 3 planted bugs caught

@@ -1,0 +1,39 @@
+result: 5
+         1127726 function calls (838486 primitive calls) in 0.948 seconds
+
+   Ordered by: internal time
+   List reduced from 55 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+463922/183082    0.211    0.000    0.211    0.000 run_benchmark_baseline.py:93(find)
+    59658    0.186    0.000    0.416    0.000 run_benchmark_baseline.py:204(useful)
+    21401    0.098    0.000    0.251    0.000 run_benchmark_baseline.py:48(move)
+    21803    0.073    0.000    0.503    0.000 run_benchmark_baseline.py:112(random_choice)
+15346/6946    0.048    0.000    0.123    0.000 run_benchmark_baseline.py:74(remove)
+    68206    0.048    0.000    0.048    0.000 run_benchmark_baseline.py:148(update)
+    22121    0.040    0.000    0.337    0.000 run_benchmark_baseline.py:180(move)
+    59658    0.034    0.000    0.034    0.000 run_benchmark_baseline.py:197(useful_fast)
+    21401    0.025    0.000    0.041    0.000 run_benchmark_baseline.py:128(remove)
+    66627    0.023    0.000    0.023    0.000 run_benchmark_baseline.py:132(set)
+      200    0.018    0.000    0.864    0.004 run_benchmark_baseline.py:365(random_playout)
+    13965    0.017    0.000    0.022    0.000 run_benchmark_baseline.py:387(score)
+     7964    0.017    0.000    0.019    0.000 run_benchmark_baseline.py:124(add)
+    43696    0.012    0.000    0.012    0.000 {method 'random' of '_random.Random' objects}
+    21803    0.011    0.000    0.513    0.000 run_benchmark_baseline.py:194(random_move)
+    21401    0.010    0.000    0.015    0.000 run_benchmark_baseline.py:152(add)
+      400    0.010    0.000    0.011    0.000 run_benchmark_baseline.py:247(score)
+    57094    0.010    0.000    0.010    0.000 {built-in method builtins.len}
+    31459    0.009    0.000    0.009    0.000 run_benchmark_baseline.py:155(dupe)
+      319    0.005    0.000    0.027    0.000 run_benchmark_baseline.py:395(best_child)
+
+
+share of total profiled time (0.948 s), top 8 by self time
+function                           ncalls     self      cum
+find                        463922/183082    22.3%    22.3%
+useful                              59658    19.7%    43.9%
+move                                21401    10.3%    26.5%
+random_choice                       21803     7.7%    53.0%
+remove                         15346/6946     5.1%    13.0%
+update                              68206     5.1%     5.1%
+move                                22121     4.3%    35.5%
+useful_fast                         59658     3.6%     3.6%

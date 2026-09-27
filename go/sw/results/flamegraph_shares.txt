@@ -1,0 +1,9 @@
+samples: 3522
+function             incl     self   incl ms    self ms
+random_choice       55.0%     8.1%      216.9       31.9
+useful              47.0%    23.5%      185.2       92.7
+move                33.0%    15.4%      130.2       60.8
+find                22.1%    22.1%       87.3       87.3
+remove              16.0%     9.1%       63.2       35.8
+useful_fast          2.6%     2.6%       10.1       10.1
+find time nested inside useful: 69.0%

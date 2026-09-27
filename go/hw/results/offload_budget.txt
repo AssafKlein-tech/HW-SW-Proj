@@ -1,0 +1,18 @@
+baseline: 389.1 ms min, 392.0 ms median CPU time over 15 reps
+
+boundary        calls     baseline     replayed offloadable     share     us/call
+--------------------------------------------------------------------------------
+Square.find    183082        389.1        341.8        47.3     12.1%       0.258
+Board.useful    59658        389.1        205.5       183.5     47.2%       3.076
+
+Board.useful offload -- projected runtime vs round-trip cost T_txn
+(59658 USEFUL round trips + 21401 posted MOVE writes @ 0.15 us)
+
+  T_txn      runtime      speedup   
+  0.00 us    209 ms       1.86x
+  0.30 us    227 ms       1.72x
+  0.50 us    239 ms       1.63x
+  1.00 us    268 ms       1.45x
+  1.50 us    298 ms       1.30x
+  2.00 us    328 ms       1.19x
+  3.08 us    392 ms       0.99x   <- break-even

@@ -1,0 +1,104 @@
+================================================================================
+AI Tool Usage Disclosure - go benchmark
+Tool used: Claude Code (Anthropic)
+================================================================================
+
+Per the project's AI-tools policy, this file lists the prompts I gave the AI
+tool that materially shaped the work on this benchmark. Minor clarifying
+back-and-forth is omitted; the prompts below are reproduced as sent.
+
+The environment groundwork in ../Mdp/prompt.txt (item 1, perf on this KVM
+guest) applies to this benchmark as well; it is why the go flame graphs are
+recorded with py-spy instead of perf. The software-optimization stage
+(profiling, the iterative find() and __slots__ changes, the bit-identical
+verification script) followed the same working pattern as mdp: profile,
+propose, implement on a copy, verify identical output, measure. Those earlier
+prompts were not kept verbatim. The hardware stage is listed below.
+
+--------------------------------------------------------------------------------
+1. Hardware accelerator proposal and RTL
+--------------------------------------------------------------------------------
+"Now we move to the next stage of this project - suggest and implement a
+hardware accelerator that will likely speedup the same go benchmark. Use
+benchmark_analysis.md and results/profile_report.md for context on the
+benchmark and its bottlenecks. Suggest a hardware accelerator AS SIMPLE AS
+POSSIBLE that can speedup the benchmark. Your suggestion must include:
+1) Clearly define the inputs and outputs of the hardware accelerator, including
+data widths, interfaces, and expected operating frequency 2) Describe the
+internal logic and operation of the accelerator. 3) Explain how the hardware
+module interacts with the existing software. 4) Explain why this component is
+a good candidate for hardware acceleration. Estimate the expected performance
+improvement 5) Include a block diagram illustrating the hardware accelerator,
+its interfaces, and its integration into the overall system 6) Discuss the
+expected trade-offs between performance, hardware complexity (area), operating
+frequency, and power consumption. Finally, use the hw-designer agent to
+generate a simple SystemVerilog implementation."
+
+-> Outcome: the choice of Board.useful() as the offload boundary (rather than
+the hotter-looking Square.find()), the shadow-board design with the superko
+set kept in software, the Python model of the accelerator
+(hw/sw_with_hw_interface/accel_model.py) verified bit-identical against the
+baseline, the recorded operation trace, and the SystemVerilog core, AXI4-Lite
+wrapper and testbenches in hw/. The measurement that prices each offload
+boundary (hw/sw_with_hw_interface/measure_offload_budget.py) came out of this
+step as well.
+
+--------------------------------------------------------------------------------
+2. Short summary, block diagram and slides
+--------------------------------------------------------------------------------
+"generate a diagram with less details and also in png. Generate on txt file,
+make it short and focused and with answer for those questions (that you
+already answered in different places): 1) why this component is a good
+candidate for hardware acceleration? 2) Hardware architecture, including
+input/outputs definition and block diagram. 3) HW and SW interface.
+4) Expected gains, tradeoff between performance hw complexity and power
+consumption. When you finish generate a slide for each question, in a format
+and style that can be a continuation of go_optimization_slides_academic.pptx"
+
+-> Outcome: hw/accelerator_block_diagram.png, hw/hardware_accelerator_summary.txt
+and the four accelerator slides in the presentation deck.
+
+--------------------------------------------------------------------------------
+3. Checking the find() vs useful() argument with the standard tools only
+--------------------------------------------------------------------------------
+"Explain to me how you say that find() is not worth offloading while useful()
+is, by only using flame graph, perf, cProfile and common sense."
+
+"But we said that for useful() tottime (time spent exclusively executing lines
+inside the function) and cumtime (total time from when the function starts
+until it exits) are the same, doesn't it contradict the saying that it calls
+more functions and therefore we will offload more running time?"
+
+-> Outcome: the inclusive-vs-self time argument used in the report (offloading
+removes a function's whole subtree, so the flame-graph box width divided by the
+call count is the budget per bus round trip), and the correction that it is
+find(), not useful(), whose tottime equals its cumtime. sw/shares.py computes
+these numbers from the py-spy samples.
+
+--------------------------------------------------------------------------------
+4. Report sections
+--------------------------------------------------------------------------------
+"Read Final Report.docx and fill information inside. Keep it short to the
+point and readable."
+
+"This is not good enough. Change only parts you added. You can add also
+another things to the hw optimization section if you think those needed.
+You must keep everything simple, short and readable."
+
+"Does it answer the guidelines in Project.pdf? Just answer, don't change
+anything for now."  /  "Fix those gaps in section 7, keep it short"
+
+-> Outcome: the hardware sections of the final report (register map, software
+side, internal structure, how a USEFUL runs, expected gains, trade-offs,
+verification), checked against the assignment's section 7 list.
+
+--------------------------------------------------------------------------------
+5. Repository
+--------------------------------------------------------------------------------
+"Now push to the git repository. Don't change anything in the mdp benchmark
+files. It should also contain flame graph and results of the cProfile exactly
+match what described in the report and a short simple script that runs
+exactly what described in the report."
+
+-> Outcome: script_go.sh, the measurement tools in sw/, the results folders,
+report_go.txt, and this file.

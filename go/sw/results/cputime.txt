@@ -1,0 +1,6 @@
+15 repetitions per variant, process CPU time, ms
+variant           mean    stdev       min       max   speedup
+baseline         394.1      2.3     390.5     397.8    1.000x
+find_only        376.2      2.9     370.6     381.4    1.048x
+slots_only       360.8      3.4     356.3     368.8    1.092x
+combined         339.8      2.4     335.7     345.4    1.160x

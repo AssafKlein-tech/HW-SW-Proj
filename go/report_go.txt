@@ -1,0 +1,246 @@
+================================================================================
+HWSW Project - Benchmark Report: go
+Technion 00460882
+================================================================================
+
+Everything cited below is produced by ./script_go.sh; the file each number
+comes from is named in brackets.
+
+
+1. OVERVIEW
+--------------------------------------------------------------------------------
+
+The second benchmark we chose is "go" from the pyperformance suite: a pure
+Python Monte-Carlo Go engine. versus_cpu() seeds the random generator with 1,
+builds an empty 9x9 board and asks the engine for one move. Choosing that move
+costs 200 simulated games, each one a UCT tree descent followed by a random
+playout to the end, so the benchmark measures interpreter throughput on tight
+object-oriented code: attribute access, method calls, small-integer
+arithmetic and list indexing. It is deterministic; the answer is always the
+same move (5).
+
+Libraries: standard library only. random for playout move choice and Zobrist
+key generation, math for the UCB1 term, pyperf as the timing harness.
+
+Data structures:
+  - Square x81, one per board point: colour, liberty count (ledges), a
+    union-find parent (reference) and a precomputed neighbour list.
+  - The stone groups are a union-find forest. find() walks reference to the
+    group root; move() unions a new stone with same-colour neighbours and
+    merges their liberty counts.
+  - EmptySet: a dense list of empty points plus an index array, O(1)
+    add/remove by swap-with-last, uniform sampling with in-place rejection.
+  - ZobristHash: incremental XOR hash of the board plus a set of every hash
+    seen, for O(1) superko detection.
+  - UCTNode: the search tree; an 81-slot child list, win/loss counts and a
+    cached best child.
+
+Every candidate move is first vetted by Board.useful(): it speculatively
+plays the stone, counts friendly and enemy groups through find(), simulates
+any capture, tests the resulting hash against the superko set and rolls the
+hash back. A global TIMESTAMP epoch counter invalidates its scratch marks so
+that 81 flags do not have to be cleared per call.
+
+
+2. PROFILING AND ANALYSIS
+--------------------------------------------------------------------------------
+
+Tools: cProfile for exact call counts and self/cumulative time
+[sw/results/cprofile_baseline.txt], and py-spy at 200 Hz for a flame graph of
+the same code [sw/results/flamegraph_baseline.svg, collapsed_baseline.txt].
+py-spy samples the interpreter's own frame stack, so every frame resolves to
+a Python function; perf's frame-pointer unwinding through python3-dbg gives
+mostly unknown parents on this VM (see ../Mdp/script_mdp.sh).
+
+Hot functions, one versus_cpu() call [cprofile_baseline.txt]:
+
+    function          ncalls           self    cum
+    Square.find       463,922/183,082  22.3%   22.3%
+    Board.useful      59,658           19.7%   43.9%
+    Square.move       21,401           10.3%   26.5%
+    random_choice     21,803            7.7%   53.0%
+    Square.remove     15,346/6,946      5.1%   13.0%
+
+Two things stand out.
+
+First, find() is called recursively: 463,922 calls but only 183,082 outermost
+ones, so 280,840 calls are recursive re-entries, 1.53 per outermost call on
+average. The flame graph shows this as a tower of find frames stacked on each
+other. Each re-entry is a full interpreter frame for one pointer hop.
+
+Second, find()'s self time equals its cumulative time: it calls nothing but
+itself. useful() on the other hand has a cumulative time more than twice its
+self time, because find(), remove() and the hash update run underneath it.
+That distinction matters again in section 5.
+
+None of the hot functions does arithmetic, allocation or I/O worth speaking
+of. The time is interpreter overhead: frames, attribute lookups and dictionary
+accesses on Square objects.
+
+
+3. OPTIMIZATIONS
+--------------------------------------------------------------------------------
+
+Both changes are confined to class Square and preserve the benchmark's
+behaviour exactly (section 4). Sources: sw/run_benchmark_find_only.py,
+sw/run_benchmark_slots_only.py, sw/run_benchmark.py (both).
+
+Optimization 1: iterative find(). The recursive walk to the group root
+becomes a while loop, followed by a second loop that compresses the path only
+when update=True, exactly as before. Same work, no call per hop. cProfile of
+the optimized version shows find() at 183,082 calls, i.e. the recursive
+re-entries are gone [sw/results/cprofile_optimized.txt].
+
+Optimization 2: __slots__ on Square. The eleven attributes ever assigned on a
+Square are declared as slots, so attribute access becomes a fixed offset into
+the object instead of a dictionary lookup. Square has no subclasses and its
+__dict__ is never used, so nothing else changes.
+
+
+4. PERFORMANCE COMPARISON
+--------------------------------------------------------------------------------
+
+Process CPU time of one versus_cpu() call, 15 repetitions per variant, same
+process [sw/results/cputime.txt]:
+
+    variant        mean      stdev   speedup
+    baseline       394.1 ms  2.3     1.000x
+    find only      376.2 ms  2.9     1.048x
+    slots only     360.8 ms  3.4     1.092x
+    both           339.8 ms  2.4     1.160x
+
+__slots__ is the larger of the two, which the self-time ranking alone would
+not have predicted: attribute traffic is spread over every hot function, not
+concentrated in find(). The two stack to 1.16x, above the 7% target.
+
+Verification [sw/results/verify.txt]. Each variant, and the hardware model
+of section 5, is loaded next to the baseline and compared on the returned
+move (5), the number of random draws consumed (44,382), the next unconsumed
+draw, all 201 UCT nodes' win/loss records, all 21,401 moves, and the board,
+hash and score of all 200 simulated games. All identical.
+
+
+5. HARDWARE ACCELERATION
+--------------------------------------------------------------------------------
+
+5.1 Choosing what to offload
+
+find() is the hottest function by self time, but offloading it loses.
+Offloading a function replaces its whole subtree (its box in the flame graph)
+with one bus round trip per call, so the number that matters is inclusive
+time divided by call count [sw/results/flamegraph_shares.txt, baseline
+394.1 ms]:
+
+                      calls      inclusive        budget per round trip
+    find()            183,082    87.3 ms (22%)    0.48 us
+    useful()          59,658     185.2 ms (47%)   3.1 us
+
+A round trip to an accelerator costs around 1 us, so a find() accelerator
+would make the benchmark slower. useful() has twelve times the budget, and
+69% of find()'s time is nested inside it, so it comes along for free. A
+second, profiler-free measurement agrees: replaying recorded return values
+in place of the function body puts useful() at 183.5 ms and 3.08 us per call
+[hw/results/offload_budget.txt].
+
+useful() also suits hardware: it is pure (no RNG, no allocation, commits
+nothing), its state is the whole 9x9 board at about 18 kbit, and its work is
+pointer chasing and 63-bit XORs, which is what the interpreter is worst at.
+
+5.2 Architecture
+
+go_useful_accel is a shadow copy of the board's group structure: colour,
+union-find parent, liberty count and used flag for 81 points, two scratch
+bitmaps, the 243 x 63-bit Zobrist key table and the board hash. The small
+arrays are flip-flops, the key table is one block RAM, the 9x9 neighbour
+geometry is a ROM built at elaboration. The scratch bitmaps replace the
+software's TIMESTAMP trick: clearing 81 flip-flops costs one cycle.
+
+Control is a 24-state FSM with two shared sub-routines, FIND (one parent hop
+per cycle, path compression on the MOVE path only) and an XOR step that folds
+two keys into the hash. MOVE and USEFUL are the same neighbour walk; MOVE
+writes the result back, USEFUL only computes it. No pipelining: a USEFUL is
+2 to 30 cycles against a bus round trip of about 100.
+
+Files: hw/rtl/go_useful_core.sv (engine), hw/rtl/go_useful_accel.sv
+(AXI4-Lite wrapper), hw/tb/ (testbenches), hw/docs/spec.md,
+hw/accelerator_block_diagram.png.
+
+5.3 Interface
+
+AXI4-Lite slave, 32-bit, 100 MHz. CMD (op, colour, pos; the write starts the
+operation), STAT, RES_LO/RES_HI (63-bit hash, bit 31 of RES_HI repeats done
+so one register can be polled), KEY_LO/KEY_HI/KEY_IDX to load the keys.
+Operations: RESET, MOVE, USEFUL, LOAD_KEY. USEFUL returns fast_path,
+useful_cond and the candidate hash; the superko set stays in software because
+it is unbounded. MOVE is a posted write with no reply.
+
+The Python board stays the master copy and the accelerator mirrors it. The
+change to the benchmark is about 15 lines: load the keys in Board.__init__,
+reset the shadow in Board.reset, send a MOVE after Board.move, and
+
+    fast, cond, h = ACCEL.useful(pos, self.color)
+    if fast: return True
+    return cond and h not in self.zobrist.hash_set
+
+hw/sw_with_hw_interface/run_benchmark.py is the benchmark with exactly that
+change, running against the Python model of the block.
+
+5.4 Expected gains
+
+Cycle counts, from replaying the recorded operation stream of one benchmark
+iteration through the RTL in iverilog [hw/results/rtl_sim.txt]:
+
+    operation           count    min   mean    max
+    USEFUL, fast path   28,199     2    2.0      2
+    USEFUL, full path   31,459    11   29.4    553
+    USEFUL, all         59,658     2   16.5    553
+    MOVE                21,401    11   28.4    655
+    RESET                  202   164  164.0    164
+
+A mean USEFUL is 0.165 us at 100 MHz against about 3.1 us in Python; the
+whole stream is 17.1 ms of hardware against 185 ms of software. The block is
+not the bottleneck, the bus is. With the software floor at 205.5 ms
+[offload_budget.txt] the projected runtime against the round-trip cost is:
+
+    round trip   integration                  runtime   speedup
+    0.5 us       tightly coupled fabric       239 ms    1.63x
+    1.0 us       AXI4-Lite, C extension shim  268 ms    1.45x
+    1.5 us       AXI4-Lite, ctypes shim       298 ms    1.30x
+    3.1 us       break-even                   392 ms    1.00x
+    0            limit of this split          209 ms    1.86x
+
+We expect about 1.45x. These runtimes are projections: only the cycle counts
+are measured, the round trip is assumed, and there is no FPGA here.
+
+5.5 Trade-offs
+
+Area: about 1.6k flip-flops, one block RAM and 1.5k LUTs, under 2% of a
+mid-range FPGA; the cost is the 81-way read multiplexers, not arithmetic.
+Frequency: the critical path is one FIND hop, 200 MHz is possible and would
+not help. Power: tens of mW, idle 80% of the time; total system power still
+rises because the host busy-polls. The worst USEFUL is 553 cycles (5.5 us),
+above the 3.1 us budget, but that is 31 calls out of 59,658.
+
+5.6 Verification
+
+  - The benchmark run against the Python model of the accelerator is
+    bit-identical to the baseline [sw/results/verify.txt].
+  - After each of the 22,121 moves the model agrees with the Python board on
+    the hash, all 81 colours and the group partition; no mismatches
+    [hw/results/shadow_sync.txt].
+  - All 81,747 recorded operations replayed through the RTL: pass
+    [hw/results/rtl_sim.txt]. AXI4-Lite register map exercised over the bus:
+    pass [hw/results/axil_sim.txt]. Verilator lint clean [hw/results/lint.txt].
+  - Three single-line bugs planted in the RTL are each rejected by the
+    testbench [hw/results/mutation_test.txt].
+
+
+6. CONCLUSION
+--------------------------------------------------------------------------------
+
+Two small, behaviour-preserving changes to one class give 1.16x. The hardware
+proposal takes the natural next step: the hot predicate that the software
+optimizations could only make cheaper is moved out of the interpreter
+entirely, and the measurement that decides the boundary (inclusive time per
+call against the cost of a bus crossing) is the same reasoning that ruled out
+the more obvious target. The remaining limit is the interface, not the logic.

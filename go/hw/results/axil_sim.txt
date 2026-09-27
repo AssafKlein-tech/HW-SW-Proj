@@ -1,0 +1,25 @@
+--- 1. state after reset -------------------------------------
+  ok : STAT reads 0 after reset (idle, no done)
+  ok : RES_LO reads 0 after reset
+  ok : RES_HI reads 0 after reset
+  ok : write-only CMD reads back 0
+  ok : unmapped 0x1C reads 0
+  ok : unmapped write completes with OKAY
+--- 2. NOP: done becomes sticky, cleared by RES_LO read -------
+  ok : STAT.done set after NOP
+  ok : STAT.done still set (sticky) on a second read
+  ok : RES_HI.done set (poll register)
+  ok : STAT.done cleared by the RES_LO read
+--- 3. key load + RESET, STAT.busy during the long op ---------
+  ok : 243 ZKEY entries loaded over the bus
+  ok : STAT.busy set while RESET runs
+  ok : STAT.done clear while RESET runs
+  ok : STAT.busy clear after RESET
+  ok : RES_LO holds a non-zero empty-board hash after RESET
+  ok : STAT.done cleared again by the RES_LO read
+--- 4. replay the next trace ops over AXI --------------------
+  ok : 400 trace ops replayed over AXI4-Lite
+
+=============================================================
+ PASS - go_useful_accel AXI4-Lite smoke test
+=============================================================

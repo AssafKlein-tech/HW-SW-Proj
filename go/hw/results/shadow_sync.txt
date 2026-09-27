@@ -1,0 +1,6 @@
+Board.move calls checked : 22121
+zobrist hash mismatches  : 0
+board colour mismatches  : 0
+group partition mismatch : 0
+
+SHADOW IN SYNC across the whole run.

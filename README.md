@@ -38,12 +38,28 @@ Mdp/
                                raw console logs from the pipeline runs
 
 go/
-  sw/                          Baseline benchmark and the software-optimized version,
-                               plus software_optimization_summary.txt
-  hw/                          Hardware accelerator proposal:
+  report_go.txt               Full report: overview, analysis, optimizations,
+                               performance comparison, hardware accelerator
+  prompt.txt                  AI-tool prompt disclosure for this benchmark
+  script_go.sh                Reproduces the whole pipeline end to end (see below)
+  sw/
+    run_benchmark_baseline.py  Unmodified pyperformance source
+    run_benchmark_find_only.py Optimization 1 only (iterative find)
+    run_benchmark_slots_only.py Optimization 2 only (__slots__ on Square)
+    run_benchmark.py           Both optimizations
+    cprofile_run.py / cputime.py / verify.py / shares.py / loop.py
+                               cProfile driver, runtime measurement, bit-identical
+                               check, flame-graph share table, py-spy target
+    results/                   cProfile outputs, flame graphs, runtime table,
+                               verification log
+    software_optimization_summary.txt
+  hw/
     docs/spec.md               Accelerator specification
-    rtl/*.sv                   SystemVerilog implementation
-    sw_with_hw_interface/       Reference SW model of the HW/SW interface
+    rtl/*.sv                   SystemVerilog implementation (core + AXI4-Lite wrapper)
+    tb/*.sv                    Self-checking testbenches
+    sw_with_hw_interface/      Benchmark running against the accelerator model,
+                               the model itself, trace generator and model checks
+    results/                   Simulation logs with cycle counts, lint, model checks
     accelerator_block_diagram.png
     hardware_accelerator_summary.txt
 ```
@@ -87,17 +103,28 @@ python3-dbg mdp_optimized.py -o mdp_optimized.json                  # optimized
 pyperf compare_to mdp_baseline.json mdp_optimized.json
 ```
 
-## Running the go benchmark
+## Running the go benchmark pipeline
 
 ```bash
-python3-dbg go/sw/run_benchmark.py                       # baseline / optimized SW
-python3 go/hw/sw_with_hw_interface/run_benchmark.py       # with HW-interface model
+cd go
+./script_go.sh            # REPS=5 ./script_go.sh for a quicker runtime table
 ```
 
-See `go/sw/software_optimization_summary.txt` and
-`go/hw/hardware_accelerator_summary.txt` for the detailed analysis,
-measured numbers, and the hardware accelerator design (spec in
-`go/hw/docs/spec.md`, RTL in `go/hw/rtl/`).
+This regenerates the cProfile outputs and flame graphs for the baseline and the
+optimized version, the runtime table (baseline, each optimization alone, both),
+the bit-identical check of every variant against the baseline, and on the
+hardware side the operation trace, the model checks and the RTL simulation.
+Needs `py-spy` for the flame graphs and `iverilog` for the simulation; both
+stages are skipped with a message if the tool is missing.
+
+Single stages:
+
+```bash
+python3 sw/cprofile_run.py sw/run_benchmark_baseline.py          # cProfile
+python3 sw/cputime.py 15 baseline=sw/run_benchmark_baseline.py combined=sw/run_benchmark.py
+python3 sw/verify.py sw/run_benchmark_baseline.py sw/run_benchmark.py
+cd hw && iverilog -g2012 -o tb_core tb/tb_go_useful_core.sv rtl/go_useful_core.sv && vvp tb_core
+```
 
 ## AI tool usage
 
