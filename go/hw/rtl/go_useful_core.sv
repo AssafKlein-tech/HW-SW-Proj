@@ -4,7 +4,7 @@
 // Shadow copy of a 9x9 Go board's group/liberty structure: union-find over
 // stones, per-group liberty counts and an incremental 63-bit Zobrist hash.
 // Executes NOP / RESET / MOVE / USEFUL / LOAD_KEY from a simple synchronous
-// command port.  Bit-exact with bm_go_hw/accel_model.py (the golden model).
+// command port.  Bit-exact with sw_with_hw_interface/accel_model.py.
 //
 // Parameters
 //   SIZE   board edge (9).  NPTS/POSW/LEDGEW are derived from it.

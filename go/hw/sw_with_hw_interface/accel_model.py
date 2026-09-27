@@ -1,17 +1,12 @@
-"""Cycle-faithful behavioural model of the `go_useful_accel` hardware block.
+"""Behavioural model of the go_useful_accel block.
 
-This is the *golden model*: it implements exactly the algorithm the SystemVerilog
-RTL implements (same arrays, same widths, same traversal order), and it is what
-`bm_go_hw/run_benchmark.py` calls in place of `Board.useful`.  Running the
-benchmark against this model proves the hardware/software *partition* is
-bit-exact; dumping its op stream (see hw/model/gen_trace.py) then proves the RTL
-against the real workload rather than against hand-written vectors.
+Same arrays, widths and traversal order as the RTL, so the benchmark can be
+run against it (go/hw/sw_with_hw_interface/run_benchmark.py) to check
+the hardware/software split is exact, and its operation stream can be dumped
+(gen_trace.py) to drive the RTL testbench.
 
-Hardware state modelled (81-point 9x9 board, ~18 kbit total):
-    color[81] x 2b   ref[81] x 7b   ledges[81] x 9b   used[81] x 1b
-    temp_ledges[81] x 9b   root_seen[81] x 1b   removed[81] x 1b
-    ZKEY 243 x 63b   hash 63b
-"""
+State: color[81] x 2b, ref[81] x 7b, ledges[81] x 9b, used[81] x 1b,
+temp_ledges[81] x 9b, root_seen/removed[81] x 1b, ZKEY 243 x 63b, hash 63b."""
 
 SIZE = 9
 NPTS = SIZE * SIZE

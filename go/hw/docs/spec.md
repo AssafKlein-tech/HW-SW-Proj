@@ -10,7 +10,7 @@ mirrors every committed stone placement into the accelerator with a posted
 `MOVE` so that the shadow state stays in step.
 
 The normative behavioural reference is
-`/root/Project_go/bm_go_hw/accel_model.py` (`GoUsefulAccel`).  The RTL
+`sw_with_hw_interface/accel_model.py` (`GoUsefulAccel`).  The RTL
 reproduces it bit-for-bit, including traversal order where results depend on it.
 
 Geometry: 81 points, `pos = y*9 + x`, `pos in 0..80`.
